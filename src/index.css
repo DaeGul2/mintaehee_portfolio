@@ -2459,26 +2459,119 @@ body[data-short-view="1"] {
   --bg-elev: #f0f3f8;
   --bg-card: #ffffff;
 
-  max-width: 230mm;
+  max-width: 360mm;
   margin: 0 auto;
   padding: 28mm 0 28mm 0;
   color: var(--text);
   font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
-  font-size: 10.2pt;
+  font-size: 10pt;
   line-height: 1.45;
 }
 
-/* 각 페이지 = A4 시트 한 장 (화면에서 캡처 단위) */
+/* 각 페이지 = PPT 16:9 슬라이드 (338×190mm, PowerPoint 기본 widescreen) */
 .print-short .ps-page {
-  width: 210mm;
-  min-height: 297mm;
+  width: 338mm;
+  min-height: 190mm;
   margin: 0 auto 16mm auto;
-  padding: 18mm 16mm;
+  padding: 6mm 10mm;
   background: #ffffff;
   color: #1a1d24;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   border-radius: 2px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+/* 페이지 직계 자식의 위·아래 외부 마진 제거 — 캡처 시 빈 여백 축소
+   (다운로드 버튼은 position:absolute라 흐름에서 빠져 첫 자식 선택자에 영향 없음) */
+.print-short .ps-page > *:not(.ps-dl-btn):first-of-type,
+.print-short .ps-page > .ps-head,
+.print-short .ps-page > .ps-intro-head,
+.print-short .ps-page > .ps-page-kicker {
+  margin-top: 0 !important;
+}
+.print-short .ps-page > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* 일괄 다운로드 바 — 짧은 뷰 최상단 sticky */
+.ps-bulkbar {
+  position: sticky;
+  top: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 338mm;
+  max-width: calc(100% - 24px);
+  margin: 0 auto 24px auto;
+  padding: 10px 14px;
+  background: rgba(20, 24, 32, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+.ps-bulk-btn {
+  flex: 0 0 auto;
+  padding: 9px 18px;
+  background: #0090da;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 4px 14px rgba(0, 144, 218, 0.4);
+}
+.ps-bulk-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #007bbb;
+  box-shadow: 0 6px 18px rgba(0, 144, 218, 0.55);
+}
+.ps-bulk-btn:disabled {
+  background: #5a6470;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.ps-bulkbar-hint {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  font-weight: 500;
+}
+
+/* 페이지 우상단 PNG 다운로드 버튼 (시트 외곽으로 살짝 빠져 캡처에 영향 없음) */
+.ps-dl-btn {
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  z-index: 10;
+  padding: 7px 14px;
+  background: #0090da;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 144, 218, 0.45);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  letter-spacing: 0.3px;
+}
+.ps-dl-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #007bbb;
+  box-shadow: 0 6px 18px rgba(0, 144, 218, 0.55);
+}
+.ps-dl-btn:disabled {
+  background: #9aa3ad;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 .print-short .ps-page::after {
   content: attr(data-pageno);
@@ -2729,15 +2822,20 @@ body[data-short-view="1"] {
   font-weight: 700;
 }
 
-/* === Page 2 — 좌·우 2단 === */
+/* === Page 2 — 좌·우 2단 (PPT 16:9에서 더 넓게) === */
 .ps-twocol {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6mm;
+  gap: 10mm;
+  flex: 1;
+  align-content: start;
+}
+.ps-twocol-single {
+  grid-template-columns: 1fr;
 }
 .ps-col-relevance {
   background: var(--accent-soft);
-  padding: 4mm 5mm;
+  padding: 5mm 6mm;
   border-radius: 2px;
 }
 .ps-col-relevance .ps-block-title {
@@ -2866,6 +2964,241 @@ body[data-short-view="1"] {
   margin-top: 6mm;
   padding-top: 3mm;
   border-top: 1px solid var(--line);
+}
+
+/* === 프로젝트 p.3 / p.4 — 미니 헤더 (한 줄) === */
+.ps-mini-head {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  padding-bottom: 3mm;
+  margin-bottom: 4mm;
+  border-bottom: 2px solid var(--accent);
+  font-size: 11pt;
+}
+.ps-mini-no {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-weight: 800;
+  color: var(--accent);
+  font-size: 14pt;
+}
+.ps-mini-name {
+  font-weight: 800;
+  color: var(--text);
+  font-size: 12pt;
+}
+.ps-mini-sep { color: var(--text-mute); }
+.ps-mini-section {
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 10.5pt;
+}
+
+/* === p.3 — Growth + Feedback === */
+.ps-growth {
+  list-style: none;
+}
+.ps-growth li {
+  position: relative;
+  padding: 3mm 3mm 3mm 7mm;
+  font-size: 9.7pt;
+  line-height: 1.6;
+  border-bottom: 1px dashed var(--line);
+}
+.ps-growth li:last-child { border-bottom: none; }
+.ps-growth li::before {
+  content: "✦";
+  position: absolute;
+  left: 1.5mm;
+  top: 3mm;
+  color: var(--accent-2);
+  font-weight: 700;
+  font-size: 11pt;
+}
+.ps-growth li strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ps-col-feedback {
+  display: flex;
+  flex-direction: column;
+}
+.ps-feedback {
+  flex: 1;
+  background: #fff8e8;
+  border-left: 5px solid var(--accent-2);
+  padding: 6mm 7mm;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ps-feedback-text {
+  font-size: 12pt;
+  line-height: 1.65;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 4mm;
+  letter-spacing: -0.2px;
+}
+.ps-feedback-cite {
+  font-size: 9pt;
+  color: var(--accent-2);
+  font-weight: 700;
+  text-align: right;
+  font-family: "JetBrains Mono", Consolas, monospace;
+}
+
+/* === 표지 (Cover) — 16:9 슬라이드 첫 장 === */
+.ps-cover {
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f6fb 60%, #e6f1f8 100%);
+}
+.ps-cover-inner {
+  width: 100%;
+  max-width: 250mm;
+  text-align: center;
+}
+.ps-cover-kicker {
+  display: inline-block;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12pt;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 4px;
+  margin-bottom: 10mm;
+}
+.ps-cover-name {
+  font-size: 64pt;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: #1a1d24;
+  line-height: 1;
+  margin-bottom: 6mm;
+}
+.ps-cover-role {
+  font-size: 16pt;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 3mm;
+}
+.ps-cover-tag {
+  font-size: 12pt;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+.ps-cover-rule {
+  width: 80mm;
+  height: 3px;
+  background: var(--accent);
+  margin: 10mm auto;
+  border-radius: 2px;
+}
+.ps-cover-apply {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 3mm 10mm;
+  padding: 6mm 10mm;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  text-align: left;
+}
+.ps-cover-apply > div {
+  display: contents;
+}
+.ps-cover-apply dt {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 9pt;
+  color: var(--text-mute);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  align-self: center;
+}
+.ps-cover-apply dd {
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* === 감사 페이지 — 16:9 슬라이드 마지막 장 === */
+.ps-thanks {
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #faf6e8 60%, #f3edd2 100%);
+}
+.ps-thanks-inner {
+  text-align: center;
+  width: 100%;
+  max-width: 220mm;
+}
+.ps-thanks-title {
+  font-size: 72pt;
+  font-weight: 800;
+  letter-spacing: -2.5px;
+  color: #1a1d24;
+  line-height: 1;
+  margin-bottom: 8mm;
+}
+.ps-thanks-rule {
+  width: 60mm;
+  height: 3px;
+  background: var(--accent-2);
+  margin: 0 auto 8mm auto;
+  border-radius: 2px;
+}
+.ps-thanks-name {
+  font-size: 16pt;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2mm;
+}
+.ps-thanks-mail {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12pt;
+  color: var(--accent);
+  margin-bottom: 5mm;
+}
+.ps-thanks-apply {
+  font-size: 11pt;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+/* === p.4 — 대표 화면 (사진 2x2 그리드) === */
+.ps-photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6mm;
+  flex: 1;
+}
+.ps-photo {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ps-photo img {
+  width: 100%;
+  height: 65mm;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+.ps-photo figcaption {
+  padding: 2.5mm 3.5mm;
+  font-size: 8.7pt;
+  line-height: 1.45;
+  color: var(--text-sub);
+  background: #fff;
+  flex: 1;
 }
 
 /* === 인쇄 모드: Short PDF === */
