@@ -30,17 +30,15 @@ function AboutBodyKo() {
           최적의 자동화 임계치를 결정하는 것을 핵심 역량으로 봅니다.
         </p>
         <p>
-          아래 6개 프로젝트는 본 채용 직무 — <strong>MetLife 코리아 · GA Sales Process Innovation Partner</strong> —
+          아래 4개 프로젝트는 본 채용 직무 — <strong>MetLife 코리아 · GA Sales Process Innovation Partner</strong> —
           의 세 핵심 축에 직접 연결됩니다. (1) 데이터 기반 세일즈 전략 및 혁신 과제 수립 / (2) 세일즈 프로세스 자동화 및 AI/ML 모델 구축 / (3) DT 프로젝트 매니징 및 기술 거버넌스.
           각 프로젝트마다 어느 항목과 어떻게 맞물리는지를 카드 마지막 "본 직무와의 연결고리" 섹션에 정리해 두었습니다.
         </p>
         <ul className="jd-map">
-          <li><span className="jd-map-num">01</span><span className="jd-map-name">화장품사 통합 운영 ERP</span><span className="jd-map-tag">세일즈 데이터 분석·병목 분석 + DT 프로젝트 리딩·기술 거버넌스</span></li>
-          <li><span className="jd-map-num">02</span><span className="jd-map-name">AI 면접 질문지 생성</span><span className="jd-map-tag">Gen AI · LLM 비즈니스 접목 + 현업과 IT의 가교</span></li>
-          <li><span className="jd-map-num">03</span><span className="jd-map-name">채용 서류 자동 검증 시스템</span><span className="jd-map-tag">RPA · AI Agent · OCR 자동화 + 정형·비정형 데이터 정제·표준화</span></li>
-          <li><span className="jd-map-num">04</span><span className="jd-map-name">법인카드 운영·감사 시스템</span><span className="jd-map-tag">OCR + 감사 로그 자동화 + 내부 통제 패턴</span></li>
-          <li><span className="jd-map-num">05</span><span className="jd-map-name">정부지원사업 자동 매칭 시스템</span><span className="jd-map-tag">AI/ML 기반 영업 지원 모델 + 세일즈 단계별 병목 분석</span></li>
-          <li><span className="jd-map-num">06</span><span className="jd-map-name">채용 결과 자동 레포트 시스템</span><span className="jd-map-tag">정형·비정형 데이터 표준화 + 반복 업무 자동화로 직원 시간 단축</span></li>
+          <li><span className="jd-map-num">01</span><span className="jd-map-name">정부지원사업 자동 매칭 시스템</span><span className="jd-map-tag"><strong>고객 프로필 → 적합 상품 자동 매칭</strong>의 1:1 원형 · 보험 상품 추천 스코어링과 직접 대응</span></li>
+          <li><span className="jd-map-num">02</span><span className="jd-map-name">화장품사 통합 운영 ERP</span><span className="jd-map-tag"><strong>다차원 세일즈 데이터 분석</strong> · 1인 풀스택으로 ERP 전 과정 책임 (DT 거버넌스)</span></li>
+          <li><span className="jd-map-num">03</span><span className="jd-map-name">AI 면접 질문지 생성</span><span className="jd-map-tag"><strong>Gen AI · 다단계 LLM 파이프라인</strong> · "프롬프트는 코드가 아니라 데이터"로 현업이 직접 운영</span></li>
+          <li><span className="jd-map-num">04</span><span className="jd-map-name">채용 서류 자동 검증 시스템</span><span className="jd-map-tag"><strong>RPA · AI Agent · OCR 우대 3종</strong>을 한 흐름에 결합 · 보험 KYC·언더라이팅 직접 이식</span></li>
         </ul>
       </div>
     </>
@@ -65,19 +63,17 @@ function AboutBodyEn() {
           redesigning the data flow of a workflow, and determining the optimal automation threshold for each step.
         </p>
         <p>
-          The six projects below map directly onto the three core pillars of this role —
+          The four projects below map directly onto the three core pillars of this role —
           <strong> MetLife Korea · GA Sales Process Innovation Partner</strong>:
           (1) data-driven sales strategy and innovation, (2) sales process automation and AI/ML model building,
           and (3) DT project management and technical governance.
           Each project's "Connection to This Role" section at the bottom of the card explains how it maps onto these pillars.
         </p>
         <ul className="jd-map">
-          <li><span className="jd-map-num">01</span><span className="jd-map-name">Integrated ERP for a Cosmetics Company</span><span className="jd-map-tag">Sales data analysis & bottleneck analysis + DT project leadership & tech governance</span></li>
-          <li><span className="jd-map-num">02</span><span className="jd-map-name">AI Interview Question Generator</span><span className="jd-map-tag">Gen AI · LLM business application + bridging field experts and IT</span></li>
-          <li><span className="jd-map-num">03</span><span className="jd-map-name">Automated Recruitment Document Verification</span><span className="jd-map-tag">RPA · AI Agent · OCR automation + structured/unstructured data normalization</span></li>
-          <li><span className="jd-map-num">04</span><span className="jd-map-name">Corporate Card Operations & Audit System</span><span className="jd-map-tag">OCR + audit log automation + internal control patterns</span></li>
-          <li><span className="jd-map-num">05</span><span className="jd-map-name">Government Funding Auto-Matching System</span><span className="jd-map-tag">AI/ML-based sales support model + sales-stage bottleneck analysis</span></li>
-          <li><span className="jd-map-num">06</span><span className="jd-map-name">Automated Recruitment Result Report System</span><span className="jd-map-tag">Structured/unstructured data standardization + repetitive-task automation that saves staff time</span></li>
+          <li><span className="jd-map-num">01</span><span className="jd-map-name">Government Funding Auto-Matching System</span><span className="jd-map-tag"><strong>Customer profile → product auto-matching</strong> — direct 1:1 prototype of insurance product recommendation scoring</span></li>
+          <li><span className="jd-map-num">02</span><span className="jd-map-name">Integrated ERP for a Cosmetics Company</span><span className="jd-map-tag"><strong>Multi-dimensional sales analytics</strong> — owned the entire ERP arc solo (DT governance)</span></li>
+          <li><span className="jd-map-num">03</span><span className="jd-map-name">AI Interview Question Generator</span><span className="jd-map-tag"><strong>Gen AI · multi-stage LLM pipeline</strong> — "prompts are data, not code" so the field operates the system directly</span></li>
+          <li><span className="jd-map-num">04</span><span className="jd-map-name">Automated Recruitment Document Verification</span><span className="jd-map-tag"><strong>RPA · AI Agent · OCR all three</strong> in a single flow — directly portable to insurance KYC / underwriting</span></li>
         </ul>
       </div>
     </>

@@ -14,6 +14,16 @@ export const strings = {
     metlifeAlt: 'MetLife',
     apply: '코리아 · GA Sales Process Innovation Partner 지원',
 
+    // Bio
+    bioBirthKey: '생년월일',
+    bioBirthVal: '1996. 09. 10. · Male',
+    bioAddressKey: '주소',
+    bioAddressVal: '경기도 수원시 장안구',
+
+    // Sidebar drawer
+    sbOpen: '사이드바 열기',
+    sbClose: '사이드바 접기',
+
     // Nav labels
     navAbout: '소개',
     navProfile: '학력·경력',
@@ -122,6 +132,16 @@ export const strings = {
     photoTag: 'Profile',
     metlifeAlt: 'MetLife',
     apply: 'Korea · Applying for GA Sales Process Innovation Partner',
+
+    // Bio
+    bioBirthKey: 'Birth',
+    bioBirthVal: '1996. 09. 10. · Male',
+    bioAddressKey: 'Address',
+    bioAddressVal: 'Jangan-gu, Suwon, Gyeonggi-do',
+
+    // Sidebar drawer
+    sbOpen: 'Open sidebar',
+    sbClose: 'Collapse sidebar',
 
     // Nav labels
     navAbout: 'About',

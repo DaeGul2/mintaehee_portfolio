@@ -2,8 +2,168 @@
 
 export const projects = [
   {
-    id: 'p1-ibco',
+    id: 'p5-fund',
     index: '01',
+    name: 'Government Funding Auto-Matching System',
+    role: 'Solo full-stack · beta pilot (13 SMEs)',
+    tagline: 'Personalized recommendations of government funding opportunities through a 3-stage matching engine and GPT verification — a direct prototype of insurance product recommendation scoring.',
+    period: '2025',
+    stack: ['React', 'Express 5', 'MySQL · Sequelize', 'OpenAI', 'SMS · email auto-dispatch'],
+
+    overview: (
+      <>
+        SMEs and venture managers used to dig through countless government funding announcements by hand
+        to find ones that fit their company. This system automates that with a 3-stage matching engine
+        (hard conditions → soft scoring → keyword bonus) and a GPT second-pass verification.
+        A single customer survey is enough — fitting announcements are recommended, with the recommendation
+        rationale auto-generated and dispatched by email/SMS. With 13 SMEs in the beta pilot, 38 recommendation
+        batches and 227 individual matches were produced from a 694-announcement DB, and email open rate hit
+        31.6% (above the 20–25% industry average).
+      </>
+    ),
+
+    points: [
+      {
+        h: 'Not simple if-else — multi-dimensional conditions structured by hierarchy, weights, and thresholds',
+        p: 'The matching engine flows in 5 stages. (1) Hard conditions (region, scale, business type, 3 of them) — fail any and you’re instantly dropped. (2) Government priority announcements get preferential points and are forced in. (3) Eligibility conditions (exclusion items, etc.) hard-disqualify. (4) A 9-item, 86-point soft score. (5) Keyword bonuses (weight doubled if the customer answered "no preference"). Time corrections — deadline approaching, always-open, latest — are multiplied at the end, with a 45-point threshold for filtering. Each stage is cleanly separated for easy debugging and improvement.',
+      },
+      {
+        h: 'One round of algorithm improvement based on operational data',
+        p: 'Originally "incorporation type, business years, revenue" were hard conditions. But "general (open to all)" announcements left those fields blank and entered with a perfect score, so 70% of the score distribution piled up above 60 points and discriminative power vanished. I moved those three items to soft scoring, raised the soft maximum from 63 to 86 points by increasing the special-certification weight from 3 to 5, and adjusted the threshold from 12 to 45 points. The score distribution returned to a normalized bell curve.',
+      },
+      {
+        h: 'Snapshot the customer’s recommendation-time conditions — reproducible and auditable post-hoc',
+        p: 'At the moment a recommendation is generated, the customer’s entire condition set at that point (hard, soft, keywords) is saved as JSON alongside it. Even if the customer later changes their profile, the past recommendation can be reproduced exactly with its original basis. Each match result decomposes the 9-item scores and correction multipliers, so "why did this recommendation get this score" can be explained at row level.',
+      },
+    ],
+
+    journey: {
+      label: 'Project Journey',
+      stages: [
+        {
+          tag: 'Why I Built It',
+          body: 'SME and venture managers were spending hours every time digging through government funding announcements to find ones that fit their company. From the consultant side, junior staff couldn’t produce veteran-level recommendations, leaving a wide gap. The thesis: if the system absorbs matching and rationale generation, consultants can focus on essential work — pre-consultation, business-plan consulting, post-recommendation support.',
+        },
+        {
+          tag: 'Initial Build',
+          body: 'I started with hard-condition (region, scale, business type) filters and the announcement DB. The early version evolved with simple if-else matching and basic scoring, plus the basic flow for email auto-dispatch and open tracking.',
+        },
+        {
+          tag: 'Problems Found → Solutions',
+          body: (
+            <>
+              <p>Operating the early version surfaced the following problems, which I worked through by category in the next iteration.</p>
+              <ul className="prob-cats">
+                <li>
+                  <span className="cat-name">A. Score-distribution skew destroyed discriminative power</span>
+                  <p className="cat-prob">"General (open to all)" announcements passed with a perfect score by leaving the hard conditions blank, so ~70% of the score distribution piled up above 60 points. Recommendations lost discriminative power, and consultants had to manually re-screen them.</p>
+                  <p className="cat-sol"><strong>Solution</strong> · Moved "incorporation type, business years, revenue" from hard conditions to soft scoring; raised the soft maximum from 63 to 86 points and the pass threshold from 12 to 45 points. The distribution returned to a bell curve and discrimination was restored.</p>
+                </li>
+                <li>
+                  <span className="cat-name">B. Risk of AI verification cost explosion</span>
+                  <p className="cat-prob">If the structure that called GPT per match scaled with customer count, operational cost would grow faster than recommendation value.</p>
+                  <p className="cat-sol"><strong>Solution</strong> · Narrowed GPT-4o-mini verification to only the top 10 hard-condition passers and added a cache table keyed on (customer, announcement) so identical combinations are served by DB lookup. Additional cost effectively converges to zero.</p>
+                </li>
+                <li>
+                  <span className="cat-name">C. No post-hoc reproduction or audit</span>
+                  <p className="cat-prob">If a customer revised their profile and someone later looked back at past recommendations, there was no way to reproduce what conditions produced them. Insufficient as evidence for algorithm improvement and as evidence for external-audit response.</p>
+                  <p className="cat-sol"><strong>Solution</strong> · At recommendation time, the entire customer condition set is saved alongside as JSON, and each match result preserves the 9-item scores and correction multipliers decomposed. "Why is this recommendation at this score" can be explained at row level any time.</p>
+                </li>
+              </ul>
+            </>
+          ),
+        },
+        {
+          tag: 'Current State',
+          body: 'Beta pilot: 13 SMEs · 694 announcements · 38 recommendation batches · 227 individual matches. Email open rate 31.6% (above the 20–25% industry average).',
+        },
+        {
+          tag: "What's Next",
+          body: 'Once enough recommendation → application → acceptance data accumulates, I want to move the heuristic weights to an ML model that learns them automatically. Connecting SMS auto-dispatch to chatbot consulting, and a learning loop that feeds consultants’ post-hoc feedback back into the matching algorithm, are also on the next-step list.',
+        },
+        {
+          tag: 'Guiding Principle',
+          body: 'I prioritized data design that makes recommendation results post-hoc reproducible and explainable. "Why did this announcement get this score" needs to be explainable at row level for operational data to drive algorithm improvement.',
+        },
+      ],
+    },
+
+    growth: {
+      label: 'What I Gained',
+      points: [
+        'The biggest gain. Working with external data like "government funding announcements" — where format and fields don’t fall 100% into structured form — taught me the approach of incrementally categorizing through operational data instead of forcing rigid structuring. I crawled 1,000+ announcements, built categories and enums based on that data, and designed the operational flow where new values land in "pending" first and only get promoted to formal enum after admin review and "accept." A learned approach to automating external data while keeping the system open rather than closed when formats keep changing.',
+        'Rule-engine design thinking that structures multi-dimensional conditions through hierarchy, weights, and thresholds — not simple if-else',
+        'The experience of doing one round of algorithm improvement based on operational data — judging from real data which item to move where when score distribution skews to one side',
+        'A data-design pattern that snapshots recommendation-time conditions for post-hoc reproduction — a way of thinking that keeps model-decision accountability clear under regulation and audit',
+      ],
+    },
+
+    photoGalleries: [
+      {
+        id: 'data-overview',
+        title: 'Announcement Data & Operations at a Glance',
+        summary: 'External data (government funding announcements) where format doesn’t fall into 100% structured form is auto-collected and auto-categorized, with operational status and data details visible on a single screen.',
+        cover: '/images/one-two-fund/대시보드.png',
+        items: [
+          { tag: 'Operations dashboard', caption: 'Cumulative crawled announcement count, matching progress, email-dispatch and open funnel — combined into one screen. The entry view designed so operators can immediately grasp this cycle’s matching flow and anomaly signals upon entering the system.', src: '/images/one-two-fund/대시보드.png' },
+          { tag: 'Announcement auto-crawling', caption: 'The work of operators searching and organizing government funding announcements by hand was replaced with auto-crawling. External data without consistent format/fields was incrementally categorized through operational data — 1,000+ cumulative announcements were classified and stored.', src: '/images/one-two-fund/공고 자동 크롤링 모습.png' },
+          { tag: 'Announcement detail — Tier 1–3 classification', caption: 'Collected announcements are classified into Tier 1–3 by recommendation priority and managed on one screen. Operators can directly inspect the foundation data the matching algorithm uses, review classification quality, and correct it.', src: '/images/one-two-fund/공고 상세테이블1_티어1부터3까지나눈모습.png' },
+          { tag: 'Announcement detail — LLM metadata', caption: 'Metadata extracted by LLM (summary, keywords, etc.) and the model used to produce it are kept on the same row. "What model produced what data and how" is traceable post-hoc, so the impact range during algorithm improvement or model swap is immediately visible.', src: '/images/one-two-fund/공고 상세테이블2_메타데이터와 사용 모델 등 llm으로 가져온 데이터들.png' },
+        ],
+      },
+      {
+        id: 'master',
+        title: 'Master-Data Operation — New Categories Get Held First',
+        summary: 'Instead of forcing automatic processing of inconsistent-format external data, newly discovered categories land in "pending" first, then operators review them directly and promote them to formal enum status. The pattern of operating with the system open rather than closed is encoded directly into the screen.',
+        cover: '/images/one-two-fund/마스터관리_enum관리1_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png',
+        items: [
+          { tag: 'Enum management — pending candidate list', caption: 'When new category values not in the master table are discovered during crawling, the system doesn’t process them arbitrarily — they land in "pending" state. Operators can review accumulated candidates in batch on one screen.', src: '/images/one-two-fund/마스터관리_enum관리1_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png' },
+          { tag: 'Enum management — merge / promotion handling', caption: 'Reviewed candidates are merged into existing categories or promoted to a new formal enum, decided directly by the operator. An operational pattern that explicitly preserves a human judgment step instead of forced auto-processing — the core flow that absorbs external-data format variation while maintaining operational quality.', src: '/images/one-two-fund/마스터관리_enum관리2_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png' },
+        ],
+      },
+      {
+        id: 'matching',
+        title: '3-Stage AI Matching & Recommendation Results',
+        summary: 'How the 3-stage rule engine (hard conditions → soft scoring → keyword bonus) followed by GPT verification of the top candidates flows through one matching cycle.',
+        cover: '/images/one-two-fund/AI매칭돌려서 추천 목록.png',
+        items: [
+          { tag: 'AI matching flow', caption: 'A view of how a single matching cycle operates. Hard-condition pass, soft-score calculation, keyword bonus application, and GPT verification of the top candidates run in sequence inside the system.', src: '/images/one-two-fund/한 번 AI매칭돌릴떄 모습 예시.png' },
+          { tag: 'Recommendation result list', caption: 'After matching, the final recommended announcement list is sorted by score and fit. The work of consultants manually digging through announcements is handled by the system, freeing them to focus only on final review and pre-consultation.', src: '/images/one-two-fund/AI매칭돌려서 추천 목록.png' },
+        ],
+      },
+      {
+        id: 'delivery',
+        title: 'Customer Delivery — Auto Email and Receiving Screen',
+        summary: 'Matching results are delivered to customers automatically by the system rather than by consultant manual dispatch, with post-dispatch open and response also tracked as data.',
+        cover: '/images/one-two-fund/추천이메일예시_실제로 추천 정부지원사업을 등록된 이메일로 자동으로 보내줌.png',
+        items: [
+          { tag: 'Recommendation email auto-dispatch', caption: 'Matching results are auto-dispatched to the customer’s registered email. The step where consultants prepared and sent emails one by one is now handled by the system, and post-dispatch open and response data validate matching effectiveness.', src: '/images/one-two-fund/추천이메일예시_실제로 추천 정부지원사업을 등록된 이메일로 자동으로 보내줌.png' },
+          { tag: 'Customer receiving screen', caption: 'What an actual customer receives — not a plain list of announcements, but accompanied by the GPT-generated rationale "why this announcement is recommended for you" embedded in the body.', src: '/images/one-two-fund/한 명한테 어떤 식으로 정부지원사업공고가오는지 예시.png' },
+        ],
+      },
+    ],
+
+    scoreDist: [
+      { range: '≥ 200 (priority)', count: '66', barW: 88, desc: 'Hard conditions passed + priority points applied' },
+      { range: '100 – 199', count: '2', barW: 3, desc: 'High score' },
+      { range: '70 – 99', count: '45', barW: 60, desc: 'Mid' },
+      { range: '45 – 69 (pass line)', count: '64', barW: 85, desc: 'Soft-score threshold passed' },
+      { range: '< 45 (filtered)', count: '50', barW: 67, desc: 'Discriminative power' },
+    ],
+
+    relevance: {
+      label: 'Connection to This Role',
+      lines: [
+        { tag: 'AI/ML-based sales support', body: (<><strong>Exact prototype of "customer profile → auto-match to product + auto-generated rationale"</strong> — <strong>1:1 mapping to insurance product recommendation scoring</strong>.</>) },
+        { tag: 'Sales funnel · bottleneck analysis', body: (<>4-stage funnel — dispatch → open → response → feedback — built in, making <strong>matching → enrollment conversion and bottlenecks visible</strong>.</>) },
+        { tag: 'Technical governance', body: (<><strong>Recommendation-time condition snapshotting</strong> + GPT cost cache + algorithm-change history — regulation/audit governance bundled in one system.</>) },
+      ],
+    },
+  },
+
+  {
+    id: 'p1-ibco',
+    index: '02',
     name: 'Integrated ERP for a Cosmetics Company',
     role: 'Solo full-stack · in production',
     tagline: 'An integrated ERP built to dismantle operational inefficiencies at a cosmetics company — 17 field-level problems sorted into automated, semi-automated, and human-judgment layers.',
@@ -166,17 +326,16 @@ export const projects = [
     relevance: {
       label: 'Connection to This Role',
       lines: [
-        { tag: 'Sales data analysis & strategy', body: 'Multi-dimensional variables — channel, period, product, event, weather — are combined inside one system, with hands-on experience using them for sales-performance measurement and bottleneck analysis.' },
-        { tag: 'DT project leadership & technical governance', body: 'Owned the entire arc of an ERP — from defining problems through field interviews, designing the data model, shipping CI/CD, and changing policy in production.' },
-        { tag: 'Structured / unstructured data normalization', body: 'Multiple channels of unstructured Excel are unified into a single schema, with external variables (weather, events, keywords) joined in to standardize the data into an analyzable form — currently in production.' },
+        { tag: 'Sales data analysis & strategy', body: (<><strong>Multi-dimensional variable join</strong> — channel · period · product · event · weather — operating today for sales-performance measurement and bottleneck analysis.</>) },
+        { tag: 'DT project leadership & governance', body: (<><strong>Field interview → data model → CI/CD shipping → live policy changes</strong> — owned the entire ERP arc end-to-end as one person.</>) },
+        { tag: 'Structured / unstructured normalization', body: (<>Unstructured Excel from 4 channels → <strong>single-schema normalization</strong> + external variables (weather, events, keywords) joined in.</>) },
       ],
-      transfer: 'Pulling unstructured data from disparate channels and systems into one schema, and the staged "DRAFT → review → CONFIRM" inspection flow, can carry directly into sensitive transaction processing in insurance — contracts, claims, changes — as the same kind of safeguard. The scale and data complexity at MetLife are incomparably larger, but the underlying approach — "resolving operational inefficiencies in the field through data structure" — applies just the same.',
     },
   },
 
   {
     id: 'p2-jasoseo',
-    index: '02',
+    index: '03',
     name: 'AI Interview Question Generator',
     role: 'Solo full-stack · v1 used by 10+ public-sector recruitments / v2 currently in production at 2 institutions · used in company sales pitches',
     tagline: 'One of the in-house AI tools I proposed and built to align our core business (public-sector recruitment outsourcing) with the AI paradigm — 4+ of these tools are now used as differentiators in our actual sales presentations.',
@@ -332,17 +491,16 @@ export const projects = [
     relevance: {
       label: 'Connection to This Role',
       lines: [
-        { tag: 'Gen AI · LLM in business', body: 'Operating-grade patterns for LLMs — strict output format, multi-stage verification, retries, caching — beyond single calls. Validated through 815 real interview-question generations.' },
-        { tag: 'AI/ML-based sales support', body: '"Prompts are data, not code" — a structure that lets the field directly operate AI systems.' },
-        { tag: 'Bridge between business and IT', body: 'Domain experts’ know-how decomposed into block-level units and recomposed by other field users — a case of moving tacit field knowledge into the system as an asset.' },
+        { tag: 'Gen AI · LLM in business', body: (<><strong>Multi-stage LLM pipeline</strong> (generate + 4-axis verify) · strict output format · cache — operating-grade patterns <strong>validated through 815 real generations</strong>.</>) },
+        { tag: 'AI/ML-based sales support', body: (<><strong>Recruiters edit prompts directly without a developer</strong> — the same structure can be applied to sales-domain experts as-is.</>) },
+        { tag: 'Bridge between business and IT', body: (<>Domain know-how <strong>decomposed into 40 blocks as data</strong> — recomposed and operated by field users.</>) },
       ],
-      transfer: 'The three design choices validated here — separating domain know-how into data so the field can operate AI systems directly, multi-stage automatic verification of AI-generated output, and a data design that preserves every change and execution for post-hoc traceability and reproduction — apply just as well to building sales-support AI models or automating sales processes, regardless of domain. The underlying view: in environments where field requirements shift quickly, the system has to keep up at the same speed.',
     },
   },
 
   {
     id: 'p3-doc',
-    index: '03',
+    index: '04',
     name: 'Automated Recruitment Document Verification System',
     role: 'Solo · OCR pipeline + RPA · in production (~20,000 cumulative documents)',
     tagline: 'Bundles of submitted documents were analyzed firsthand to define per-document fields and extraction logic — Korean public-document OCR + verification across 13 government/public-sector portals.',
@@ -454,6 +612,19 @@ export const projects = [
         ],
       },
       {
+        id: 'ocr-pipeline',
+        title: 'OCR Pipeline — From Unstructured ZIP to Structured Data',
+        summary: 'A pipeline that takes a single ZIP upload of randomly-ordered PDFs/images per applicant, auto-classifies and extracts fields, and lands the result as a structured Excel.',
+        cover: '/images/isbr-doc/OCR_처리결과UI.png',
+        items: [
+          { tag: 'ZIP upload entry', caption: 'A separate tab from the verification-Excel flow: a single ZIP containing per-applicant folders is dragged in, and the system auto-runs OCR, document-type classification, and field extraction in one pass — consolidating what used to be multiple screens into one entry point.', src: '/images/isbr-doc/OCR_대시보드_input화면.png' },
+          { tag: 'Actual shape of the input data', caption: 'Each applicant folder (e.g., 0005-000003) holds a mixed pile of language tests, certificates, and household records in arbitrary order. Without actually extracting the text, automatic classification is impossible — this was the starting point requiring a domain-analysis-based classifier.', src: '/images/isbr-doc/OCR_인풋데이터구조.png' },
+          { tag: 'Per-document extraction UI', caption: 'Extraction results are auto-grouped by document type (TOEFL, language-score pre-registration certificate, OPIC, etc.). Each field is tagged with a "regex" / "GPT" badge showing how the value was filled, so a reviewer can immediately gauge confidence.', src: '/images/isbr-doc/OCR_처리결과UI.png' },
+          { tag: 'Detail check — YOLO region overlay', caption: 'Clicking an extracted value opens the source image with YOLO-identified key regions (score, certification number, date) outlined in boxes — letting the user visually verify whether to trust the OCR result on the spot.', src: '/images/isbr-doc/OCR_처리결과_상세페이지_yolo로확인.png' },
+          { tag: 'Excel download result', caption: 'Fields needed per document — folder · institution · certificateName · passNum · birth · extraNum · sourceFile, etc. — land in a structured Excel. A gptFilled column records which fields were filled via GPT, enabling post-hoc confidence review.', src: '/images/isbr-doc/OCR_처리결과예시_엑셀다운로드 시 각 서류별 추출이 필요한 요소들 자동 추출.png' },
+        ],
+      },
+      {
         id: 'evidence',
         title: 'Auto Processing + Verification Evidence Preservation',
         summary: 'Because verification carries legal accountability, input is automated while results are preserved in a form that can be re-examined after the fact.',
@@ -483,455 +654,10 @@ export const projects = [
     relevance: {
       label: 'Connection to This Role',
       lines: [
-        { tag: 'RPA · AI Agent · OCR (preferred)', body: 'Auto-traversal across 13 government portals + Korean public-document 9-class OCR + an end-to-end pipeline tying them together — all three preferred-qualification items in one project.' },
-        { tag: 'Structured/unstructured data normalization', body: 'Korean public documents and verification results (unstructured) → 9-class auto-categorization + field extraction → checklist Excel (structured). A standardization pipeline by definition.' },
-        { tag: 'Service-scenario design with operational context', body: 'Document review for ~100 candidates per day cut from 4–5 hours to under 1 hour — while deliberately leaving the legally accountable step to a human via the intentional hybrid.' },
+        { tag: 'RPA · AI Agent · OCR (preferred)', body: (<><strong>All three preferred items combined in one flow</strong> — auto-traversal across 13 government portals + Korean 9-class document OCR + end-to-end pipeline.</>) },
+        { tag: 'Structured / unstructured normalization', body: (<>Unstructured public documents → <strong>9-class auto-categorization + field extraction → structured checklist</strong>.</>) },
+        { tag: 'Operational-context service design', body: (<>~100 candidates per day cut from <strong>4–5 hrs → under 1 hr</strong>, with the <strong>legally accountable step deliberately left to a human</strong>.</>) },
       ],
-      transfer: 'Application documents, medical exams, income statements, certifications can be ported directly: OCR → auto-categorization → verification through Gov24 / NHIS / Korea Insurance Development Institute. The "automate input, judgment is human" principle aligns precisely with insurance’s legal-accountability structure — the same flow applies across KYC, underwriting, and claims.',
-    },
-  },
-
-  {
-    id: 'p4-card',
-    index: '04',
-    name: 'Corporate Card Operations & Audit System',
-    role: 'Solo full-stack · in production (8 months)',
-    tagline: 'Corporate card OCR · anomaly detection · 9,740 audit-log entries — financial-grade internal-control patterns implemented in another domain ahead of time.',
-    period: '2025.08 — 2026.03',
-    stack: ['React', 'Express 5', 'Sequelize · MySQL', 'OpenAI', 'AWS S3'],
-
-    overview: (
-      <>
-        An internal-control system combining corporate-card check-out / return / receipt OCR for 25 cards,
-        monthly usage statistics, anomalous-transaction detection, and an audit-log middleware that auto-records
-        every business event. In production for 8 months (August 2025 – March 2026), processing 2,164 receipts
-        (KRW 144.92M), with 2,426/2,426 successful CLOVA OCR calls and an 87.5% (1,632/1,866) auto-match rate
-        between statements and receipts. The fundamentals of insurance/finance compliance, implemented and
-        validated ahead of time in a different domain.
-      </>
-    ),
-
-    points: [
-      {
-        h: 'Audit queries are designed to respond instantly',
-        p: 'The audit-log table carries 8 indexes covering time, request ID, user, action, path, status code, entity, and more. "All change history for a given card in time order," "today’s actions for a given user," "API errors as a time series," "anomaly-pattern tracking" — all of these audit queries respond instantly. A design built to survive a 5-year external audit retention period.',
-      },
-      {
-        h: 'One-line audit logging — separated into middleware',
-        p: 'A single function call from the controller auto-records request ID, user, action, result summary, and masked sensitive data. Developers only write business logic; the middleware owns audit traceability. 9,740 business events accumulated over 8 months without a gap.',
-      },
-      {
-        h: 'Domain-specific rules made explicit inside the system',
-        p: 'In actual operation, domain-specific rules that simple matching can’t catch always emerge — gaps between payment and statement timing, different settlement cycles per card type, delegation rules per department/owner, and so on. Leaving such rules in the operator’s head or in manuals creates drift between system results and reality, blurring accountability — so I made it a rule to encode them as code branches the moment they surface, making them explicit in the system. A representative case: hi-pass cards are charged immediately at the toll gate, but the card-issuer statement reflects the charge 2–3 days later. When the system recognizes a hi-pass transaction, the comparison reference date is set to the usage date minus 2 days, matched against the card check-out record, and accountability is auto-attributed to "the person who held the card during that period."',
-      },
-      {
-        h: '~22 hours/month → ~2 hours — auditor only reviews the 234 mismatches',
-        p: 'Manually it took ~22 hours/month (270 receipts entered + approval-number matching + mismatch investigation + history management + reporting) — now ~2 hours. More important than time is audit traceability: 9,740 audit-log entries (impossible to keep manually) are queryable instantly via indexes.',
-      },
-    ],
-
-    journey: {
-      label: 'Project Journey',
-      stages: [
-        {
-          tag: 'Why I Built It',
-          body: 'I wanted to systematize corporate-card auditing — manual receipt entry, Ctrl+F approval-number matching, mismatch investigation — that took 22 hours a month. At the same time, the core goal was to design transaction traceability that could survive a 5-year external audit retention period from day one, because traceability is more valuable than time savings.',
-        },
-        {
-          tag: 'Initial Build',
-          body: 'I started with the basic flow: a check-out / return workflow for the 25 cards, receipt OCR, and auto-matching between statements and receipts. At this stage, audit logs were embedded directly into each controller, and the focus was on raising matching accuracy.',
-        },
-        {
-          tag: 'Problems Found → Solutions',
-          body: (
-            <>
-              <p>Once it was running, the following problems surfaced. I worked through them by category.</p>
-              <ul className="prob-cats">
-                <li>
-                  <span className="cat-name">A. Risk of audit-log gaps</span>
-                  <p className="cat-prob">Embedding audit-log code into every controller meant high risk of omission whenever a new feature was added. In external audit, even partial gaps in transaction records constitute a major risk.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · The audit log was separated into middleware so a single function call auto-records request ID, user, action, result, and masked sensitive data. Developer overhead drops while traceability stays consistent.</p>
-                </li>
-                <li>
-                  <span className="cat-name">B. Audit-query performance</span>
-                  <p className="cat-prob">Audit queries — "all change history for this card," "today’s actions for this user," "anomaly-pattern time series" — were slow, creating heavy post-hoc inspection load. Surviving a 5-year retention required query performance to be solid from the start.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · I pre-classified audit-query patterns and added 8 indexes. All commonly used audit queries respond instantly, so external-audit response wraps up directly in the system.</p>
-                </li>
-                <li>
-                  <span className="cat-name">C. Accountability ambiguity from domain-specific rules</span>
-                  <p className="cat-prob">Domain-specific rules that simple matching can’t catch (payment/statement timing gaps, per-card-type settlement cycles, etc.) kept surfacing in operation. Leaving such rules outside the system (manuals, operators’ heads) created drift between results and reality, blurring accountability. Hi-pass cards were a representative case: charged immediately at the toll gate but reflected on the statement 2–3 days later.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · I made it operational policy to encode domain-specific rules as code branches the moment they surface, making them explicit in the system. For hi-pass transactions, when the system recognizes them the comparison reference date is set to usage date minus 2 days, matched against card check-out records, and accountability is auto-attributed to "the person who held the card during that period."</p>
-                </li>
-              </ul>
-            </>
-          ),
-        },
-        {
-          tag: 'Current State',
-          body: '8 months in production · 2,164 receipts (KRW 144.92M) · 2,426/2,426 successful CLOVA OCR calls · 87.5% statement-receipt auto-match · 9,740 audit-log entries accumulated. The auditor’s workload dropped from ~22 hours/month to ~2 hours, replaced by "domain judgment about why those 234 mismatches happened."',
-        },
-        {
-          tag: "What's Next",
-          body: 'I want to move the currently rule-based anomalous-transaction detection to a statistical model trained on accumulated audit logs. Direct integration with the card-issuer API to remove the statement-upload step is also on the next-step list, and ongoing work continues to push receipt OCR accuracy toward 99%.',
-        },
-        {
-          tag: 'Guiding Principle',
-          body: 'Traceability over time savings. Every decision had to be traceable and reproducible after the fact — that criterion drove the middleware design, the index design, and the timing-gap rule handling — while final judgment was left to a human.',
-        },
-      ],
-    },
-
-    growth: {
-      label: 'What I Gained',
-      points: [
-        'A revisited view of domain-specific rules — like the timing gap between card-issuer approval records and actual usage dates, or other rules simple matching can’t catch. Walking through where these rules hide in operation gave me a perspective I now apply when designing other automations: catch domain-specific rules early and make them explicit inside the system.',
-        'A different kind of meaning from this project — it wasn’t something I proposed first; the management-support team asked for it. Interviewing the field operators directly gave me a chance to learn how to translate between their work language and a system designer’s, in the field rather than at a desk.',
-      ],
-    },
-
-    photoGalleries: [
-      {
-        id: 'overview',
-        title: 'Operations at a Glance',
-        summary: 'When the auditor, finance, or legal team enters the system, this month’s card / receipt / check-out status is immediately visible on a single screen.',
-        cover: '/images/card-system/대시보드.png',
-        items: [
-          { tag: 'Operations dashboard', caption: 'Usage status of 25 corporate cards, receipt-registration progress, check-out status, and this month’s match/mismatch ratio — combined into one screen. The entry view designed so the system narrows down "where to look first" for the auditor.', src: '/images/card-system/대시보드.png' },
-        ],
-      },
-      {
-        id: 'workflow',
-        title: 'Corporate Card Check-Out Workflow',
-        summary: 'Application, approval, rejection, return, and usage history are tied into one flow rather than separate systems — making "who held which card when" traceable in a single view.',
-        cover: '/images/card-system/법인카드반출관리_신청_반려_회수_사용내역등등.png',
-        items: [
-          { tag: 'Card check-out management', caption: 'Card check-out application, approval, rejection, return, and usage history can be managed step-by-step on one screen. Card-issuer statement and receipt data join in automatically, and accountability — including domain timing rules (hi-pass −2 days, etc.) — is processed in one flow.', src: '/images/card-system/법인카드반출관리_신청_반려_회수_사용내역등등.png' },
-        ],
-      },
-      {
-        id: 'ocr-audit',
-        title: 'OCR · Audit Traceability',
-        summary: 'Receipt images (unstructured) are auto-converted into structured data that fits the system DB schema exactly, then auto-cross-checked against card-issuer statements — even missing registrations are auto-traced.',
-        cover: '/images/card-system/ocr결과_yolo처리하여 사용자로하여금 보다 검산 쉽게.png',
-        items: [
-          { tag: 'Receipt OCR — CLOVA + GPT', caption: 'Naver CLOVA OCR extracts text from receipts; GPT then converts the extraction into structured field values that fit the system DB schema directly. Free-form text from each receipt becomes structured data ready for ingestion without further post-processing.', src: '/images/card-system/영수증스캔_네이버ocr+gpt로 내 db 스키마에 fit한필드값 아웃풋으로받음.png' },
-          { tag: 'OCR result + YOLO verification aid', caption: 'YOLO highlights the key regions on the receipt (amount, approval number, date, etc.) so users can quickly verify OCR results visually. The cognitive load of human inspection drops, and trust in the automated result becomes a visual judgment.', src: '/images/card-system/ocr결과_yolo처리하여 사용자로하여금 보다 검산 쉽게.png' },
-          { tag: 'Receipt-omission tracking', caption: 'Card-issuer approval records are auto-cross-checked against receipts registered in the system — "which transaction is missing a receipt and who is responsible" is auto-traced. The auditor used to summon people one by one to collect receipts; the system handles it instead.', src: '/images/card-system/영수증누락_실제카드사승인내역과 우리 어플에 등록된 영수증을 통해 누가 영수증 등록을 안했는지 추적가능.png' },
-        ],
-      },
-    ],
-
-    apilogTop: [
-      { action: 'receipt.ocr.success', count: '2,426', desc: 'OCR success (all)' },
-      { action: 'receipt.ocr.clova.success', count: '2,426', desc: 'CLOVA call success (all)' },
-      { action: 'monthlyUsage.match', count: '1,632', desc: 'Statement ↔ receipt auto-match success' },
-      { action: 'login.success', count: '1,373', desc: 'Login success' },
-      { action: 'receipt.analysis.run', count: '1,014', desc: 'Anomaly-pattern analysis runs' },
-      { action: 'monthlyUsage.unmatch', count: '234', desc: 'Mismatch — used to require manual back-tracing of who omitted the receipt; the system now identifies the omitter automatically', highlight: true },
-      { action: 'login.failure', count: '93', desc: 'Login failure (anomaly-pattern detected)' },
-    ],
-
-    relevance: {
-      label: 'Connection to This Role',
-      lines: [
-        { tag: 'RPA · OCR · audit log', body: 'OCR (receipt text extraction) · AI Agent (GPT-driven structuring) · RPA (statement-receipt auto-matching and audit-log writing) combined inside one system, applied to real business operations for 8 months. 2,426/2,426 CLOVA OCR calls, 87.5% auto-match, 9,740 audit-log entries — those are the operational results.' },
-        { tag: 'Internal control patterns', body: 'Double-entry · reverse slips · audit middleware · DRAFT/CONFIRM · point-in-time balance snapshots — five financial-grade internal-control patterns implemented and validated in another domain ahead of time.' },
-        { tag: 'Structured / unstructured data normalization', body: 'Receipt PDFs/images (unstructured) → OCR → GPT analysis → standardized structured receipt data — that flow.' },
-      ],
-      transfer: 'Portable to claim-receipt OCR, fraudulent-claim detection, and special-investigation response. Applying the audit-log indexing and audit-middleware pattern across the full insurance lifecycle (enrollment, change, claim, payout, cancellation) automates external-audit response. The pattern of making hi-pass’s billing time-gap explicit in code branches transfers directly to insurance time-gap rules like "90-day exclusion period after enrollment" or "3-year refund period."',
-    },
-  },
-
-  {
-    id: 'p5-fund',
-    index: '05',
-    name: 'Government Funding Auto-Matching System',
-    role: 'Solo full-stack · beta pilot (13 SMEs)',
-    tagline: 'Personalized recommendations of government funding opportunities through a 3-stage matching engine and GPT verification — a direct prototype of insurance product recommendation scoring.',
-    period: '2025',
-    stack: ['React', 'Express 5', 'MySQL · Sequelize', 'OpenAI', 'SMS · email auto-dispatch'],
-
-    overview: (
-      <>
-        SMEs and venture managers used to dig through countless government funding announcements by hand
-        to find ones that fit their company. This system automates that with a 3-stage matching engine
-        (hard conditions → soft scoring → keyword bonus) and a GPT second-pass verification.
-        A single customer survey is enough — fitting announcements are recommended, with the recommendation
-        rationale auto-generated and dispatched by email/SMS. With 13 SMEs in the beta pilot, 38 recommendation
-        batches and 227 individual matches were produced from a 694-announcement DB, and email open rate hit
-        31.6% (above the 20–25% industry average).
-      </>
-    ),
-
-    points: [
-      {
-        h: 'Not simple if-else — multi-dimensional conditions structured by hierarchy, weights, and thresholds',
-        p: 'The matching engine flows in 5 stages. (1) Hard conditions (region, scale, business type, 3 of them) — fail any and you’re instantly dropped. (2) Government priority announcements get preferential points and are forced in. (3) Eligibility conditions (exclusion items, etc.) hard-disqualify. (4) A 9-item, 86-point soft score. (5) Keyword bonuses (weight doubled if the customer answered "no preference"). Time corrections — deadline approaching, always-open, latest — are multiplied at the end, with a 45-point threshold for filtering. Each stage is cleanly separated for easy debugging and improvement.',
-      },
-      {
-        h: 'One round of algorithm improvement based on operational data',
-        p: 'Originally "incorporation type, business years, revenue" were hard conditions. But "general (open to all)" announcements left those fields blank and entered with a perfect score, so 70% of the score distribution piled up above 60 points and discriminative power vanished. I moved those three items to soft scoring, raised the soft maximum from 63 to 86 points by increasing the special-certification weight from 3 to 5, and adjusted the threshold from 12 to 45 points. The score distribution returned to a normalized bell curve.',
-      },
-      {
-        h: 'Snapshot the customer’s recommendation-time conditions — reproducible and auditable post-hoc',
-        p: 'At the moment a recommendation is generated, the customer’s entire condition set at that point (hard, soft, keywords) is saved as JSON alongside it. Even if the customer later changes their profile, the past recommendation can be reproduced exactly with its original basis. Each match result decomposes the 9-item scores and correction multipliers, so "why did this recommendation get this score" can be explained at row level.',
-      },
-    ],
-
-    journey: {
-      label: 'Project Journey',
-      stages: [
-        {
-          tag: 'Why I Built It',
-          body: 'SME and venture managers were spending hours every time digging through government funding announcements to find ones that fit their company. From the consultant side, junior staff couldn’t produce veteran-level recommendations, leaving a wide gap. The thesis: if the system absorbs matching and rationale generation, consultants can focus on essential work — pre-consultation, business-plan consulting, post-recommendation support.',
-        },
-        {
-          tag: 'Initial Build',
-          body: 'I started with hard-condition (region, scale, business type) filters and the announcement DB. The early version evolved with simple if-else matching and basic scoring, plus the basic flow for email auto-dispatch and open tracking.',
-        },
-        {
-          tag: 'Problems Found → Solutions',
-          body: (
-            <>
-              <p>Operating the early version surfaced the following problems, which I worked through by category in the next iteration.</p>
-              <ul className="prob-cats">
-                <li>
-                  <span className="cat-name">A. Score-distribution skew destroyed discriminative power</span>
-                  <p className="cat-prob">"General (open to all)" announcements passed with a perfect score by leaving the hard conditions blank, so ~70% of the score distribution piled up above 60 points. Recommendations lost discriminative power, and consultants had to manually re-screen them.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · Moved "incorporation type, business years, revenue" from hard conditions to soft scoring; raised the soft maximum from 63 to 86 points and the pass threshold from 12 to 45 points. The distribution returned to a bell curve and discrimination was restored.</p>
-                </li>
-                <li>
-                  <span className="cat-name">B. Risk of AI verification cost explosion</span>
-                  <p className="cat-prob">If the structure that called GPT per match scaled with customer count, operational cost would grow faster than recommendation value.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · Narrowed GPT-4o-mini verification to only the top 10 hard-condition passers and added a cache table keyed on (customer, announcement) so identical combinations are served by DB lookup. Additional cost effectively converges to zero.</p>
-                </li>
-                <li>
-                  <span className="cat-name">C. No post-hoc reproduction or audit</span>
-                  <p className="cat-prob">If a customer revised their profile and someone later looked back at past recommendations, there was no way to reproduce what conditions produced them. Insufficient as evidence for algorithm improvement and as evidence for external-audit response.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · At recommendation time, the entire customer condition set is saved alongside as JSON, and each match result preserves the 9-item scores and correction multipliers decomposed. "Why is this recommendation at this score" can be explained at row level any time.</p>
-                </li>
-              </ul>
-            </>
-          ),
-        },
-        {
-          tag: 'Current State',
-          body: 'Beta pilot: 13 SMEs · 694 announcements · 38 recommendation batches · 227 individual matches. Email open rate 31.6% (above the 20–25% industry average).',
-        },
-        {
-          tag: "What's Next",
-          body: 'Once enough recommendation → application → acceptance data accumulates, I want to move the heuristic weights to an ML model that learns them automatically. Connecting SMS auto-dispatch to chatbot consulting, and a learning loop that feeds consultants’ post-hoc feedback back into the matching algorithm, are also on the next-step list.',
-        },
-        {
-          tag: 'Guiding Principle',
-          body: 'I prioritized data design that makes recommendation results post-hoc reproducible and explainable. "Why did this announcement get this score" needs to be explainable at row level for operational data to drive algorithm improvement.',
-        },
-      ],
-    },
-
-    growth: {
-      label: 'What I Gained',
-      points: [
-        'The biggest gain. Working with external data like "government funding announcements" — where format and fields don’t fall 100% into structured form — taught me the approach of incrementally categorizing through operational data instead of forcing rigid structuring. I crawled 1,000+ announcements, built categories and enums based on that data, and designed the operational flow where new values land in "pending" first and only get promoted to formal enum after admin review and "accept." A learned approach to automating external data while keeping the system open rather than closed when formats keep changing.',
-        'Rule-engine design thinking that structures multi-dimensional conditions through hierarchy, weights, and thresholds — not simple if-else',
-        'The experience of doing one round of algorithm improvement based on operational data — judging from real data which item to move where when score distribution skews to one side',
-        'A data-design pattern that snapshots recommendation-time conditions for post-hoc reproduction — a way of thinking that keeps model-decision accountability clear under regulation and audit',
-      ],
-    },
-
-    photoGalleries: [
-      {
-        id: 'data-overview',
-        title: 'Announcement Data & Operations at a Glance',
-        summary: 'External data (government funding announcements) where format doesn’t fall into 100% structured form is auto-collected and auto-categorized, with operational status and data details visible on a single screen.',
-        cover: '/images/one-two-fund/대시보드.png',
-        items: [
-          { tag: 'Operations dashboard', caption: 'Cumulative crawled announcement count, matching progress, email-dispatch and open funnel — combined into one screen. The entry view designed so operators can immediately grasp this cycle’s matching flow and anomaly signals upon entering the system.', src: '/images/one-two-fund/대시보드.png' },
-          { tag: 'Announcement auto-crawling', caption: 'The work of operators searching and organizing government funding announcements by hand was replaced with auto-crawling. External data without consistent format/fields was incrementally categorized through operational data — 1,000+ cumulative announcements were classified and stored.', src: '/images/one-two-fund/공고 자동 크롤링 모습.png' },
-          { tag: 'Announcement detail — Tier 1–3 classification', caption: 'Collected announcements are classified into Tier 1–3 by recommendation priority and managed on one screen. Operators can directly inspect the foundation data the matching algorithm uses, review classification quality, and correct it.', src: '/images/one-two-fund/공고 상세테이블1_티어1부터3까지나눈모습.png' },
-          { tag: 'Announcement detail — LLM metadata', caption: 'Metadata extracted by LLM (summary, keywords, etc.) and the model used to produce it are kept on the same row. "What model produced what data and how" is traceable post-hoc, so the impact range during algorithm improvement or model swap is immediately visible.', src: '/images/one-two-fund/공고 상세테이블2_메타데이터와 사용 모델 등 llm으로 가져온 데이터들.png' },
-        ],
-      },
-      {
-        id: 'master',
-        title: 'Master-Data Operation — New Categories Get Held First',
-        summary: 'Instead of forcing automatic processing of inconsistent-format external data, newly discovered categories land in "pending" first, then operators review them directly and promote them to formal enum status. The pattern of operating with the system open rather than closed is encoded directly into the screen.',
-        cover: '/images/one-two-fund/마스터관리_enum관리1_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png',
-        items: [
-          { tag: 'Enum management — pending candidate list', caption: 'When new category values not in the master table are discovered during crawling, the system doesn’t process them arbitrarily — they land in "pending" state. Operators can review accumulated candidates in batch on one screen.', src: '/images/one-two-fund/마스터관리_enum관리1_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png' },
-          { tag: 'Enum management — merge / promotion handling', caption: 'Reviewed candidates are merged into existing categories or promoted to a new formal enum, decided directly by the operator. An operational pattern that explicitly preserves a human judgment step instead of forced auto-processing — the core flow that absorbs external-data format variation while maintaining operational quality.', src: '/images/one-two-fund/마스터관리_enum관리2_공고크롤링시 기존 테이블에 없던 카테고리 후보군들을 pending상태로 두고 추후 사용자가 병합하거나 새로운 enum으로 추가할수 있도록함.png' },
-        ],
-      },
-      {
-        id: 'matching',
-        title: '3-Stage AI Matching & Recommendation Results',
-        summary: 'How the 3-stage rule engine (hard conditions → soft scoring → keyword bonus) followed by GPT verification of the top candidates flows through one matching cycle.',
-        cover: '/images/one-two-fund/AI매칭돌려서 추천 목록.png',
-        items: [
-          { tag: 'AI matching flow', caption: 'A view of how a single matching cycle operates. Hard-condition pass, soft-score calculation, keyword bonus application, and GPT verification of the top candidates run in sequence inside the system.', src: '/images/one-two-fund/한 번 AI매칭돌릴떄 모습 예시.png' },
-          { tag: 'Recommendation result list', caption: 'After matching, the final recommended announcement list is sorted by score and fit. The work of consultants manually digging through announcements is handled by the system, freeing them to focus only on final review and pre-consultation.', src: '/images/one-two-fund/AI매칭돌려서 추천 목록.png' },
-        ],
-      },
-      {
-        id: 'delivery',
-        title: 'Customer Delivery — Auto Email and Receiving Screen',
-        summary: 'Matching results are delivered to customers automatically by the system rather than by consultant manual dispatch, with post-dispatch open and response also tracked as data.',
-        cover: '/images/one-two-fund/추천이메일예시_실제로 추천 정부지원사업을 등록된 이메일로 자동으로 보내줌.png',
-        items: [
-          { tag: 'Recommendation email auto-dispatch', caption: 'Matching results are auto-dispatched to the customer’s registered email. The step where consultants prepared and sent emails one by one is now handled by the system, and post-dispatch open and response data validate matching effectiveness.', src: '/images/one-two-fund/추천이메일예시_실제로 추천 정부지원사업을 등록된 이메일로 자동으로 보내줌.png' },
-          { tag: 'Customer receiving screen', caption: 'What an actual customer receives — not a plain list of announcements, but accompanied by the GPT-generated rationale "why this announcement is recommended for you" embedded in the body.', src: '/images/one-two-fund/한 명한테 어떤 식으로 정부지원사업공고가오는지 예시.png' },
-        ],
-      },
-    ],
-
-    scoreDist: [
-      { range: '≥ 200 (priority)', count: '66', barW: 88, desc: 'Hard conditions passed + priority points applied' },
-      { range: '100 – 199', count: '2', barW: 3, desc: 'High score' },
-      { range: '70 – 99', count: '45', barW: 60, desc: 'Mid' },
-      { range: '45 – 69 (pass line)', count: '64', barW: 85, desc: 'Soft-score threshold passed' },
-      { range: '< 45 (filtered)', count: '50', barW: 67, desc: 'Discriminative power' },
-    ],
-
-    relevance: {
-      label: 'Connection to This Role',
-      lines: [
-        { tag: 'AI/ML-based sales support', body: 'The exact prototype of "customer profile → auto-match to fitting product + auto-generate rationale" — maps 1:1 to insurance product recommendation scoring.' },
-        { tag: 'Sales funnel · bottleneck analysis', body: 'A 4-stage funnel — email dispatch → open → response → feedback — is built in, making the conversion rate and bottlenecks from matching to enrollment visible.' },
-        { tag: 'Technical governance', body: 'Algorithm-change intent documentation + recommendation-time condition snapshotting + AI cost caching — three operational governance patterns bundled inside one system.' },
-      ],
-      transfer: 'Replace hard conditions with "age, medical history, coverage limit," soft scoring with "income, family composition, interests, life stage" (9 items), and keyword bonus with "interest keywords" — and it ports directly to insurance product recommendation scoring. The pattern of snapshotting recommendation-time conditions automates regulation/audit response, and the caching strategy converges GPT cost across mass customer bases effectively to zero.',
-    },
-  },
-
-  {
-    id: 'p6-chart',
-    index: '06',
-    name: 'Automated Recruitment Result Report System',
-    role: 'Solo full-stack · 40+ cumulative recruitment result reports (Korea Racing Authority · NHIS · Korea Teachers’ Pension · CWMA · KHIDI · KOICA, etc.) · used in company sales pitches',
-    tagline: 'A recruitment result report that company employees used to spend a long time producing — redesigned into a structure that accommodates both customization and templating, dramatically reducing creation time as an internal tool.',
-    period: '2024 — Present',
-    stack: ['React 19', 'Express', 'Supabase', 'LibreOffice CLI', 'pdfjs-dist', '@napi-rs/canvas', 'Python', 'Recharts'],
-
-    overview: (
-      <>
-        An internal tool that systematizes the result reports (charts, competency analysis, survey results)
-        company employees used to produce manually at the end of every recruitment.
-        To satisfy both the reality of recruitment-by-recruitment format variation and the requirement that
-        common patterns be reusable, it was designed with
-        <strong> a structure that accommodates both customization and templating</strong>.
-        It has been used in <strong>40+ cumulative recruitment result reports</strong>
-        (Korea Racing Authority, NHIS, Korea Teachers’ Pension, CWMA, KHIDI, KOICA, and more),
-        and is also used as a key differentiator when the company pitches public-sector clients.
-      </>
-    ),
-
-    points: [
-      {
-        h: 'Balance between customization ↔ templating',
-        p: 'The reality is that each report has to come out in a different format (institution, recruitment, evaluation criteria all differ), while the operational efficiency requirement is that common patterns be reused. Rather than forcing one or the other, I structured it so users start from a template and freely customize only what they need. Starting from the system is fast, and being able to adjust within the system gives freedom.',
-      },
-      {
-        h: 'Stability of bulk batch output',
-        p: 'It was designed assuming an operating environment where dozens to hundreds of reports — not just one — get dropped as PDF/PNG/ZIP at once. Details like waiting for chart-render stabilization before capturing (Recharts frame waiting), per-N-record ZIP-split packaging, and per-page memory cleanup for memory efficiency are baked in.',
-      },
-    ],
-
-    journey: {
-      label: 'Project Journey',
-      stages: [
-        {
-          tag: 'Why I Built It',
-          body: 'I watched company employees spend days at the end of each recruitment manually producing result reports (charts, competency analysis, survey response summaries, evaluation result PDFs). All the time went into producing materials, leaving the actual domain analysis short — the thesis was that if the system absorbs the materials work, employees can focus on analysis and insight.',
-        },
-        {
-          tag: 'Initial Build',
-          body: 'I started with the most frequently used task — auto chart generation. The first iteration covered the flow where uploading an evaluation-data Excel produced visualizations using predefined chart types directly on screen.',
-        },
-        {
-          tag: 'Problems Found → Solutions',
-          body: (
-            <>
-              <p>Once it was running, the following problems surfaced. I worked through them by category.</p>
-              <ul className="prob-cats">
-                <li>
-                  <span className="cat-name">A. Conflict between format diversity vs. efficiency</span>
-                  <p className="cat-prob">Institutions, recruitments, and evaluation criteria all differ, so formats had to differ each time. Building each report from scratch destroyed efficiency, while forced standardization couldn’t keep up with field requirements.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · I designed it so users start from a template and freely customize only what they need. The template handles the common parts; the user adjusts the differences on top — a structure that satisfies both requirements inside one system.</p>
-                </li>
-                <li>
-                  <span className="cat-name">B. Stability of bulk batch output</span>
-                  <p className="cat-prob">Many cases required dropping reports for dozens to hundreds of people at once, not just one. Simple repeated invocation captured charts before they finished rendering, and a single ZIP file would grow too large.</p>
-                  <p className="cat-sol"><strong>Solution</strong> · Operational details — capturing after Recharts frame stabilization, per-N-record ZIP-split packaging, per-page memory cleanup — were explicitly encoded.</p>
-                </li>
-              </ul>
-            </>
-          ),
-        },
-        {
-          tag: 'Current State',
-          body: 'Used in 40+ cumulative recruitment result reports (Korea Racing Authority, NHIS, Korea Teachers’ Pension, CWMA, KHIDI, KOICA, and many other public institutions), and used as a key differentiator when the company pitches public-sector clients. The time employees spent producing reports dropped significantly, replaced by domain analysis of the evaluation results.',
-        },
-        {
-          tag: "What's Next",
-          body: 'Currently it processes structured data with the same logic and doesn’t use LLMs yet. The next step is to expand LLM-based functionality in line with the recent recruitment paradigm (AI-adoption requirements). Plans include the system recommending which chart type fits the data characteristics first, an LLM auxiliary generation of per-candidate strength/improvement-area interpretation while the final wording is polished by the employee, and a cycle that turns excellent reports made by employees back into reusable templates.',
-        },
-        {
-          tag: 'Guiding Principle',
-          body: 'The most important thing wasn’t the extremes of "everything templated" or "everything customized," but creating a flow between them where the user can move freely. The system lays down a fast starting line, while leaving room for the user to polish the decisive expressions directly.',
-        },
-      ],
-    },
-
-    growth: {
-      label: 'What I Gained',
-      points: [
-        'A design view that resolves internal operational data — applied repeatedly across N institutions and N recruitments — into an operational flow between the extremes of "forced standardization" and "forced customization"',
-        'Experience reducing operator mistakes and friction by simplifying input data formats as much as possible and shifting computation that can be handled to the server side. A case of seriously thinking through how far user manual work can be reduced.',
-      ],
-    },
-
-    photoGalleries: [
-      {
-        id: 'chart-template',
-        title: 'Chart Setup (Template)',
-        summary: 'Frequently used evaluation-result formats are organized as templates so reports following the same pattern can be output immediately without extra work. Standard inputs into the system, templated deliverables, and a competency-development report built to match the recent public-sector trend (providing development direction even to rejected candidates) are gathered here.',
-        cover: '/images/chart/template-result.png',
-        items: [
-          { tag: 'Data input example', caption: 'An example of the input format for the evaluation-data Excel users upload to the system. Upload the Excel as you normally use it without separate preprocessing — the system converts it into structured data ready for analysis.', src: '/images/chart/data-input.png' },
-          { tag: 'Templated evaluation result report', caption: 'Frequently used evaluation result formats are organized as templates, so reports following the same pattern can be output immediately by the user without extra work.', src: '/images/chart/template-result.png' },
-          { tag: 'Competency development report (public-sector trend)', caption: 'A report combining the job description and the candidate’s evaluation results to organize, per evaluation item, what to develop and how. Built ahead at the company level to match the recent public-sector trend of providing post-hoc development direction even to rejected candidates.', src: '/images/chart/competency-development.png' },
-        ],
-      },
-      {
-        id: 'chart-custom',
-        title: 'Chart Setup (Customization)',
-        summary: 'An area opened up so users can freely adjust starting from the template. Graph position, text, tables, mapping text, borders, etc. can be adjusted directly on screen, and the data layer is separated so adjusting one area doesn’t affect the others.',
-        cover: '/images/chart/custom-editor.png',
-        items: [
-          { tag: 'Customization editor', caption: 'An editor screen where users directly adjust graph position, text, tables, borders, etc. on screen. Starting from a template, but with freedom open so the user can polish the decisive parts on the spot.', src: '/images/chart/custom-editor.png' },
-          { tag: 'Customization output', caption: 'Mapping data brought from Excel, globally used common data, and frequently used graph/table templates are separated at the data layer — so adjustments to one area don’t affect the others.', src: '/images/chart/custom-result.png' },
-        ],
-      },
-      {
-        id: 'survey-report',
-        title: 'Survey Report',
-        summary: 'A flow that takes survey responses and auto-generates and bulk-outputs per-respondent result reports. From an at-a-glance overall summary to per-respondent detailed analysis, all handled inside one system.',
-        cover: '/images/chart/survey-overview.png',
-        items: [
-          { tag: 'Survey report — overall summary', caption: 'An overall summary screen organizing survey responses for at-a-glance view. Designed so operators can immediately grasp the broad shape of the results before diving into detailed analysis.', src: '/images/chart/survey-overview.png' },
-          { tag: 'Survey report — detailed analysis', caption: 'Per-respondent and per-question detailed analysis screen. Results for dozens to hundreds of respondents are bulk-output as PDF/ZIP, finishing follow-up materials in one go.', src: '/images/chart/survey-detail.png' },
-        ],
-      },
-    ],
-
-    relevance: {
-      label: 'Connection to This Role',
-      lines: [
-        { tag: 'Structured/unstructured standardization for sales data analysis', body: 'A preprocessing flow that converts unstructured Excel (merged headers, multi-group) into structured data ready for analysis was built into the system. Applicable to putting variously formatted data from the sales field onto the same analysis line.' },
-        { tag: 'Time savings through repetitive-task automation', body: 'A case of moving the report work company employees spent days on every recruitment into a system flow, dramatically reducing creation time. Directly applicable to automation flows for repetitive work like sales reports and performance reports.' },
-        { tag: 'Bridge between business and IT', body: 'I have experience designing the operational flow between the extremes of "everything templated" and "everything customized," so non-developer employees can work freely within one tool.' },
-      ],
-      transfer: '',
     },
   },
 ];
@@ -939,10 +665,8 @@ export const projects = [
 export const judgmentMatrix = [
   ['Integrated ERP for a Cosmetics Company', 'Channel · inventory · GPT interpretation', 'DRAFT → CONFIRM as deliberate manual stage', 'Strategy · negotiation · new-product positioning'],
   ['AI Interview Question Generator', 'Question generation · 4-axis verification', 'Stable 815 / Experimental 0 (informed by real feedback)', 'Sensitive-info blocking · final pass/fail decision'],
-  ['Corporate Card Operations & Audit System', 'OCR · anomaly detection', 'Stops at flagging suspicious cases', 'Auditor’s final judgment · accountability attribution'],
   ['Government Funding Auto-Matching System', 'Hard → soft → keyword auto-matching', 'GPT second-pass only on top 10', 'Consultant consultation · business-plan review'],
   ['Automated Recruitment Document Verification System', 'OCR · parsing · classification', 'Verification result screens checked by user', 'Legal verification judgment'],
-  ['Automated Recruitment Result Report System', 'Excel normalization · charts · PDF/PNG bulk output', 'Start from template → freely customize', 'Decisive expression and interpretation polished by employee directly'],
   ['Internal 360-degree Review', 'Diagnosis generation · PDF encryption', 'AI diagnosis + HR can edit', 'Coaching plan'],
   ['4 Lectures', 'Tools · theory transfer', 'Including fallback logic and failure cases', '"What to process" decision belongs to the learner'],
 ];

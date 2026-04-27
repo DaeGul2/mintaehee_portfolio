@@ -173,6 +173,18 @@ export function ProjectCard({ project }) {
 
       {open && (
         <div className="pcard-body">
+          <div className="pcard-block pcard-block-relevance">
+            <h4 className="pcard-blocktitle">{relevance.label}</h4>
+            <ul className="rel-ul">
+              {relevance.lines.map((l, i) => (
+                <li key={i}>
+                  <span className="rel-tag">{l.tag}</span>
+                  <p>{l.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="pcard-overview">
             <p>{overview}</p>
           </div>
@@ -282,18 +294,6 @@ export function ProjectCard({ project }) {
               </ul>
             </div>
           )}
-
-          <div className="pcard-block">
-            <h4 className="pcard-blocktitle">{relevance.label}</h4>
-            <ul className="rel-ul">
-              {relevance.lines.map((l, i) => (
-                <li key={i}>
-                  <span className="rel-tag">{l.tag}</span>
-                  <p>{l.body}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           <div className="pcard-foot">
             <button className="pcard-foot-collapse" onClick={handleCollapse}>

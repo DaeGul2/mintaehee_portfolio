@@ -6,8 +6,8 @@ const KEY = 'mh-theme';
 export function ThemeToggle() {
   const { t } = useLang();
   const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return localStorage.getItem(KEY) || 'dark';
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem(KEY) || 'light';
   });
 
   useEffect(() => {
