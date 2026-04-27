@@ -2,7 +2,9 @@ import { useRef, useState } from 'react';
 import { PhotoBlock } from './MediaPlaceholder';
 import { PhotoModal } from './PhotoModal';
 import { GalleryModal } from './GalleryModal';
+import { InlineGallery } from './InlineGallery';
 import { useLang } from '../i18n/LanguageContext';
+import { usePrint } from './PrintContext';
 
 function ApilogTable({ rows }) {
   const { t } = useLang();
@@ -132,6 +134,7 @@ function DataInsert({ project }) {
 
 export function ProjectCard({ project }) {
   const { t } = useLang();
+  const { printMode } = usePrint();
   const [open, setOpen] = useState(false);
   const [activePhoto, setActivePhoto] = useState(null);
   const [activeGalleryId, setActiveGalleryId] = useState(null);
@@ -141,6 +144,8 @@ export function ProjectCard({ project }) {
     id, index, name, role, tagline, period, stack,
     overview, points, feedback, photos, photoCols, relevance,
   } = project;
+  const isOpen = printMode || open;
+  const isDataOpen = printMode || dataOpen;
 
   const handleCollapse = () => {
     setOpen(false);
@@ -150,8 +155,8 @@ export function ProjectCard({ project }) {
   };
 
   return (
-    <article ref={articleRef} id={id} className={`pcard${open ? ' is-open' : ''}`}>
-      <div className="pcard-head" onClick={() => setOpen(!open)}>
+    <article ref={articleRef} id={id} className={`pcard${isOpen ? ' is-open' : ''}${printMode ? ' is-print' : ''}`}>
+      <div className="pcard-head" onClick={() => !printMode && setOpen(!open)}>
         <div className="pcard-meta">
           <span className="pcard-index">{index}</span>
           <span className="pcard-period">{period}</span>
@@ -162,16 +167,18 @@ export function ProjectCard({ project }) {
         <div className="pcard-stack">
           {stack.map((s) => <span key={s} className="stack-chip">{s}</span>)}
         </div>
-        <button
-          className="pcard-toggle"
-          onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-          aria-expanded={open}
-        >
-          {open ? t('pcardCollapse') : t('pcardExpand')}
-        </button>
+        {!printMode && (
+          <button
+            className="pcard-toggle"
+            onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+            aria-expanded={open}
+          >
+            {open ? t('pcardCollapse') : t('pcardExpand')}
+          </button>
+        )}
       </div>
 
-      {open && (
+      {isOpen && (
         <div className="pcard-body">
           <div className="pcard-block pcard-block-relevance">
             <h4 className="pcard-blocktitle">{relevance.label}</h4>
@@ -222,28 +229,32 @@ export function ProjectCard({ project }) {
           </div>
 
           {project.photoGalleries && project.photoGalleries.length > 0 && (
-            <div className="pcard-block">
-              <h4 className="pcard-blocktitle">{t('pcardGalleries')} <span className="pcard-hint">{t('pcardGalleriesHint')}</span></h4>
-              <div className="gal-grid">
-                {project.photoGalleries.map((g) => (
-                  <button
-                    key={g.id}
-                    type="button"
-                    className="gal-card"
-                    onClick={() => setActiveGalleryId(g.id)}
-                  >
-                    <div className="gal-cover">
-                      <img src={g.cover} alt={g.title} />
-                      <span className="gal-count">{g.items.length} {t('pcardImgCount')}</span>
-                    </div>
-                    <div className="gal-meta">
-                      <h5 className="gal-title">{g.title}</h5>
-                      <p className="gal-summary">{g.summary}</p>
-                    </div>
-                  </button>
-                ))}
+            printMode ? (
+              <InlineGallery galleries={project.photoGalleries} />
+            ) : (
+              <div className="pcard-block">
+                <h4 className="pcard-blocktitle">{t('pcardGalleries')} <span className="pcard-hint">{t('pcardGalleriesHint')}</span></h4>
+                <div className="gal-grid">
+                  {project.photoGalleries.map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      className="gal-card"
+                      onClick={() => setActiveGalleryId(g.id)}
+                    >
+                      <div className="gal-cover">
+                        <img src={g.cover} alt={g.title} />
+                        <span className="gal-count">{g.items.length} {t('pcardImgCount')}</span>
+                      </div>
+                      <div className="gal-meta">
+                        <h5 className="gal-title">{g.title}</h5>
+                        <p className="gal-summary">{g.summary}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )
           )}
 
           {!project.photoGalleries && photos && photos.length > 0 && (
@@ -257,16 +268,20 @@ export function ProjectCard({ project }) {
 
           {(project.blockSamples || project.apilogTop || project.scoreDist || project.metricSplit) && (
             <div className="pcard-block">
-              <button
-                type="button"
-                className="pcard-data-toggle"
-                onClick={() => setDataOpen((v) => !v)}
-                aria-expanded={dataOpen}
-              >
-                <span className="pcard-data-title">{t('pcardData')}</span>
-                <span className="pcard-data-hint">{dataOpen ? t('pcardDataClose') : t('pcardDataOpen')}</span>
-              </button>
-              {dataOpen && (
+              {printMode ? (
+                <h4 className="pcard-blocktitle">{t('pcardData')}</h4>
+              ) : (
+                <button
+                  type="button"
+                  className="pcard-data-toggle"
+                  onClick={() => setDataOpen((v) => !v)}
+                  aria-expanded={dataOpen}
+                >
+                  <span className="pcard-data-title">{t('pcardData')}</span>
+                  <span className="pcard-data-hint">{dataOpen ? t('pcardDataClose') : t('pcardDataOpen')}</span>
+                </button>
+              )}
+              {isDataOpen && (
                 <div className="pcard-data-body">
                   <DataInsert project={project} />
                 </div>
@@ -295,16 +310,18 @@ export function ProjectCard({ project }) {
             </div>
           )}
 
-          <div className="pcard-foot">
-            <button className="pcard-foot-collapse" onClick={handleCollapse}>
-              {t('pcardFootCollapse')}
-            </button>
-          </div>
+          {!printMode && (
+            <div className="pcard-foot">
+              <button className="pcard-foot-collapse" onClick={handleCollapse}>
+                {t('pcardFootCollapse')}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      <PhotoModal photo={activePhoto} onClose={() => setActivePhoto(null)} />
-      {project.photoGalleries && (
+      {!printMode && <PhotoModal photo={activePhoto} onClose={() => setActivePhoto(null)} />}
+      {!printMode && project.photoGalleries && (
         <GalleryModal
           galleries={project.photoGalleries}
           openId={activeGalleryId}

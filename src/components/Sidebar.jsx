@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PhotoModal } from './PhotoModal';
 import { ThemeToggle } from './ThemeToggle';
 import { LangToggle } from './LangToggle';
+import { PrintButton } from './PrintButton';
 import { useLang } from '../i18n/LanguageContext';
 
 export function Sidebar() {
@@ -133,6 +134,7 @@ export function Sidebar() {
             <LangToggle />
           </div>
           <a href="mailto:alsxogml1234@gmail.com">alsxogml1234@gmail.com</a>
+          <PrintButton />
           <div className="sb-apply">
             {!logoError && (
               <img

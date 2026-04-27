@@ -4,7 +4,10 @@
       "Bash(node -e \"require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('src/data/sections.jsx','utf-8'\\),{sourceType:'module',plugins:['jsx']}\\); require\\('@babel/parser'\\).parse\\(require\\('fs'\\).readFileSync\\('src/data/sections.en.jsx','utf-8'\\),{sourceType:'module',plugins:['jsx']}\\); console.log\\('OK'\\)\")",
       "Bash(node -e ' *)",
       "Bash(python)",
-      "Bash(python scripts/emphasize_ko.py)"
+      "Bash(python scripts/emphasize_ko.py)",
+      "Bash(node *)",
+      "Bash(npx --no-install vite build)",
+      "Bash(npm install *)"
     ]
   }
 }

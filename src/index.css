@@ -1942,3 +1942,982 @@ a.contact-row:hover { color: var(--accent); }
   .sb-name { font-size: 22px; }
   .sec-title { font-size: 22px; }
 }
+
+/* ============================================================
+   PDF / 인쇄 모드 — A4 한 장씩 끊어 출력해도 블록이 잘리지 않게
+   1) body[data-print-mode="1"] : 화면 안에서의 평탄화 미리보기
+   2) @media print              : 실제 인쇄·PDF 저장 시 적용
+   ============================================================ */
+
+/* ---- 인쇄 표지 / 감사 페이지 ---- */
+.print-cover,
+.print-thanks {
+  display: none;
+}
+body[data-print-mode="1"] .print-cover,
+body[data-print-mode="1"] .print-thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 700px;
+  padding: 60px 32px;
+  gap: 14px;
+}
+body[data-print-mode="1"] .print-cover { border-bottom: 1px dashed var(--line); }
+body[data-print-mode="1"] .print-thanks { border-top: 1px dashed var(--line); margin-top: 32px; }
+.print-cover-kicker {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 11pt;
+  color: var(--accent);
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+.print-cover-name {
+  font-size: 44pt;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.05;
+  margin: 6mm 0 2mm;
+}
+.print-cover-role {
+  font-size: 16pt;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 2mm;
+}
+.print-cover-tag {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 11pt;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+.print-cover-rule {
+  width: 60mm;
+  height: 1px;
+  background: var(--accent);
+  margin: 8mm 0;
+}
+.print-cover-apply {
+  font-size: 11pt;
+  color: var(--text-sub);
+  max-width: 130mm;
+  line-height: 1.65;
+}
+.print-thanks-title {
+  font-size: 48pt;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 6mm;
+}
+.print-thanks-mail {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 12pt;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+/* ---- 사이드바의 PDF 저장 버튼 ---- */
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 16px;
+  padding: 9px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.18s, transform 0.18s;
+}
+.print-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.print-btn-icon { font-size: 14px; line-height: 1; }
+
+/* ---- 화면 안 미리보기(평탄화) ---- */
+/* 사이드바와 본문을 위·아래로 분리해서, 실제 인쇄(1페이지=프로필, 2페이지+=본문)와 같은 흐름으로 미리보기 */
+body[data-print-mode="1"] .sb-reopen,
+body[data-print-mode="1"] .scroll-top { display: none !important; }
+
+body[data-print-mode="1"] .layout {
+  display: block !important;
+  grid-template-columns: none !important;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+body[data-print-mode="1"] .sidebar,
+body[data-print-mode="1"] .sidebar.is-collapsed {
+  position: static !important;
+  height: auto !important;
+  width: 100% !important;
+  padding: 24px 0 32px !important;
+  transform: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 32px;
+}
+body[data-print-mode="1"] .sidebar-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* 인쇄 모드에서는 카드 펼침 버튼/접기 버튼/토글류 모두 가림 */
+body[data-print-mode="1"] .pcard-toggle,
+body[data-print-mode="1"] .pcard-foot,
+body[data-print-mode="1"] .pcard-data-toggle,
+body[data-print-mode="1"] .theme-toggle,
+body[data-print-mode="1"] .lang-toggle,
+body[data-print-mode="1"] .sb-close,
+body[data-print-mode="1"] .gm-backdrop { display: none !important; }
+
+/* 인쇄 모드의 인라인 갤러리 */
+.print-galleries .print-gal-section {
+  margin: 14px 0 20px;
+}
+.print-gal-head { margin-bottom: 10px; }
+.print-gal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.print-gal-summary {
+  font-size: 12.5px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+.print-gal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.print-gal-item {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.print-gal-imgwrap {
+  background: var(--bg-elev);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.print-gal-imgwrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  object-fit: contain;
+}
+.print-gal-cap {
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+.print-gal-tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+/* ============ 실제 인쇄 시 적용되는 규칙 (A4) ============ */
+@media print {
+  /* A4 세로, 넉넉한 여백. 콘텐츠가 종이 가장자리에 달라붙지 않도록 */
+  @page {
+    size: A4 portrait;
+    margin: 22mm 20mm 22mm 20mm;
+  }
+
+  /* 색상·배경 그대로 출력 (JD FIT 박스 등이 흰색으로 빠지지 않도록) */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #1a1d24 !important;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  /* 폰트 강제 — PDF에서도 화면과 동일한 모양 유지 */
+  body, p, h1, h2, h3, h4, h5, h6, li, td, th, span, div, a, strong, em, blockquote, cite, button, input, label {
+    font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
+      "Malgun Gothic", "맑은 고딕", "IBM Plex Sans KR", -apple-system,
+      BlinkMacSystemFont, sans-serif !important;
+  }
+  code, .stack-chip, .pcard-period, .pcard-index, .sec-kicker, .sb-tag,
+  .sb-nav a, .rel-tag, .di-tag, .di-src, .ms-kind, .gm-side-name,
+  .print-cover-kicker, .print-cover-tag, .print-thanks-mail,
+  .print-gal-tag, .footer-note, .teach-year, .teach-tag, .stack-chip {
+    font-family: "JetBrains Mono", "Consolas", "D2Coding",
+      "Courier New", monospace !important;
+  }
+
+  /* 인터랙션·드로어·토글류만 숨김 — 사이드바 본체 콘텐츠는 유지 */
+  .sb-reopen,
+  .sb-close,
+  .scroll-top,
+  .pcard-toggle,
+  .pcard-foot,
+  .pcard-data-toggle,
+  .theme-toggle,
+  .lang-toggle,
+  .print-btn,
+  .gal-grid,
+  .gm-backdrop,
+  .pcard-hint,
+  .pcard-data-hint,
+  .sb-toggles { display: none !important; }
+
+  /* 1페이지: 프로필(사이드바) 단독 / 2페이지부터: 본문 전폭 (드로어 접힌 느낌) */
+  .layout {
+    display: block !important;
+    grid-template-columns: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  /* 사이드바는 첫 페이지를 통째로 차지 → 그 다음 강제 페이지 분할 */
+  .sidebar {
+    float: none !important;
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    padding: 18mm 12mm 0 12mm !important;
+    transform: none !important;
+    opacity: 1 !important;
+    border: none !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .sidebar-inner {
+    height: auto !important;
+    max-width: 130mm;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6mm;
+  }
+  /* 표지 페이지 느낌으로 폰트/사진 살짝 키움 */
+  .sb-name { font-size: 28pt !important; line-height: 1.1 !important; margin-bottom: 2mm !important; }
+  .sb-role { font-size: 14pt !important; margin-bottom: 1mm !important; }
+  .sb-tag { font-size: 11pt !important; margin-bottom: 4mm !important; }
+  .sb-photo { width: 40mm !important; height: 52mm !important; margin-bottom: 6mm !important; }
+  .sb-bio { margin-bottom: 6mm !important; }
+  .sb-bio li { font-size: 10.5pt !important; }
+  .sb-nav { padding-top: 4mm !important; }
+  .sb-nav ul { display: flex; flex-wrap: wrap; gap: 4mm 8mm; }
+  .sb-nav li { margin-bottom: 0 !important; }
+  .sb-nav a { font-size: 10pt !important; padding: 0 !important; gap: 6px !important; }
+  .sb-bar { width: 18px !important; }
+  .sb-foot { margin-top: auto !important; padding-top: 6mm !important; }
+  .sb-foot a { font-size: 11pt !important; }
+  .sb-apply p { font-size: 10pt !important; line-height: 1.55 !important; }
+  .sb-metlogo { max-width: 28mm !important; }
+
+  /* 본문은 2페이지부터 전체 폭 — 드로어가 접힌 화면 그대로의 모습. 좌우 거터 살짝 둠 */
+  .main {
+    padding: 0 6mm !important;
+  }
+
+  /* 섹션 제목 레벨 다듬기 + 위아래 호흡 */
+  .sec { margin-bottom: 16mm; padding: 4mm 0 0 !important; }
+  .sec-head { margin-bottom: 8mm; }
+  .sec-kicker { font-size: 9.5pt; margin-bottom: 2mm; }
+  .sec-title { font-size: 18pt; line-height: 1.25; margin-bottom: 5mm; }
+  h3, .pcard-name { font-size: 14pt; }
+  h4, .pcard-blocktitle { font-size: 11.5pt; margin-bottom: 4mm; margin-top: 2mm; }
+  h5 { font-size: 11pt; }
+
+  /* 모든 섹션은 새 페이지에서 시작 (메뉴 평탄화 → 길어지므로) */
+  #profile, #projects, #teaching, #contact { break-before: page; }
+
+  /* 각 프로젝트 카드는 새 페이지부터 시작. 카드 내부에 넉넉한 좌우/상하 거터 */
+  .pcard {
+    break-before: page;
+    box-shadow: none !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 4px !important;
+    margin-bottom: 8mm !important;
+    background: #ffffff !important;
+  }
+  .pcard:first-of-type { break-before: auto; }
+  .pcard-head {
+    padding: 8mm 8mm 6mm 8mm !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  .pcard-body {
+    padding: 0 8mm 8mm 8mm !important;
+  }
+  .pcard-block { margin-bottom: 7mm !important; }
+
+  /* JD FIT 박스(연결고리)는 한 덩어리 유지 */
+  .pcard-block-relevance {
+    break-inside: avoid;
+    background: var(--accent-soft) !important;
+    border: 1px solid var(--accent) !important;
+  }
+
+  /* 일반 블록 단위는 페이지 경계를 안 건드리도록 강제 */
+  .pcard-block,
+  .pcard-overview,
+  .jrn-item,
+  .hl-ul li,
+  .growth-ul li,
+  .rel-ul li,
+  .ms-cell,
+  .data-table,
+  .fb,
+  .teach-item,
+  .profile-block,
+  .jd-map li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* 표 머리줄이 본문과 같이 붙어 보이게 */
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+
+  /* 사진 + 캡션은 절대 분리 안 됨 */
+  .print-gal-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 4mm;
+  }
+  .print-gal-imgwrap img {
+    max-height: 72mm;
+  }
+  /* 갤러리 카테고리(섹션) 단위로 새 페이지 시작, 위아래 거터 */
+  .print-gal-section {
+    break-before: page;
+    padding-top: 4mm;
+  }
+  .print-gal-section:first-of-type {
+    break-before: auto;
+  }
+  .print-gal-head { margin-bottom: 5mm !important; }
+  .print-gal-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7mm;
+  }
+  .print-gal-cap { padding: 5mm 4mm 4mm !important; }
+
+  /* JD FIT 박스 / feedback 박스는 안쪽 패딩이 줄어들지 않게 */
+  .pcard-block-relevance {
+    padding: 7mm 7mm 6mm !important;
+    margin-bottom: 8mm !important;
+  }
+  .fb { padding: 6mm 7mm !important; }
+  .rel-ul li { padding: 4mm 5mm !important; }
+  .ms-cell { padding: 5mm 6mm !important; }
+  .data-table th, .data-table td { padding: 3mm 4mm !important; }
+
+  /* 제목과 그 다음 본문이 헤어지지 않게 */
+  h2, h3, h4, h5 { break-after: avoid; page-break-after: avoid; }
+
+  /* 인쇄에서는 a 링크의 색만 유지(밑줄 제거) */
+  a { color: inherit !important; text-decoration: none !important; }
+
+  /* journey 타임라인의 세로선이 페이지 경계서 깨지는 시각 노이즈 줄이기 */
+  .jrn-line { background: var(--line) !important; }
+
+  /* 잘림 방지를 위한 마지막 안전망 — 가로 폭 컨테이너 강제 */
+  body, #root { width: 100% !important; }
+
+  /* 표지 페이지(첫 장) — A4 한 장 채우되 min-height로 오버플로 일으키지 않음 */
+  .print-cover {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    min-height: 0 !important;
+    padding: 70mm 10mm 0 !important;
+    border: none !important;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-cover-name { font-size: 44pt !important; }
+  .print-cover-role { font-size: 16pt !important; }
+  .print-cover-tag { font-size: 11pt !important; }
+  .print-cover-kicker { font-size: 11pt !important; }
+  .print-cover-apply { font-size: 11pt !important; }
+
+  /* 감사 페이지(마지막 장) */
+  .print-thanks {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    min-height: 0 !important;
+    padding: 100mm 10mm 0 !important;
+    border: none !important;
+    margin-top: 0 !important;
+    page-break-before: always;
+    break-before: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-thanks-title { font-size: 48pt !important; }
+  .print-thanks-mail { font-size: 12pt !important; }
+
+  /* 프로필(사이드바) 페이지에서는 표지에 이미 있는 역할/태그 숨김 */
+  .sidebar .sb-role,
+  .sidebar .sb-tag { display: none !important; }
+}
+
+/* ============================================================
+   Short PDF Layout — 요약 PDF 전용
+   ============================================================ */
+
+/* print-btn-group: 두 버튼을 세로로 쌓고 폭은 동일 */
+.print-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.print-btn-short {
+  background: var(--bg-elev) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--line-strong) !important;
+}
+.print-btn-short:hover {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+/* 풀 버전 복귀 버튼 — 좌상단 고정 */
+.short-exit {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "Pretendard Variable", "Pretendard", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 144, 218, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.short-exit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 144, 218, 0.45);
+}
+
+/* 화면 모드 — 짧은 뷰: 어두운 배경 위에 A4 시트들이 나열 */
+body[data-short-view="1"] {
+  background: #2a2f3a !important;
+  background-image: none !important;
+}
+
+.print-short {
+  /* 다크 테마에서도 흰 시트 위 가독성을 위해 라이트 팔레트 강제 */
+  --text: #1a1d24;
+  --text-sub: #4a5060;
+  --text-mute: #767c8a;
+  --line: #e3e6ec;
+  --line-strong: #c8cdd6;
+  --accent: #0090da;
+  --accent-soft: rgba(0, 144, 218, 0.10);
+  --accent-2: #88b03b;
+  --accent-2-soft: rgba(136, 176, 59, 0.12);
+  --bg-elev: #f0f3f8;
+  --bg-card: #ffffff;
+
+  max-width: 230mm;
+  margin: 0 auto;
+  padding: 28mm 0 28mm 0;
+  color: var(--text);
+  font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+  font-size: 10.2pt;
+  line-height: 1.45;
+}
+
+/* 각 페이지 = A4 시트 한 장 (화면에서 캡처 단위) */
+.print-short .ps-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 16mm auto;
+  padding: 18mm 16mm;
+  background: #ffffff;
+  color: #1a1d24;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+  position: relative;
+}
+.print-short .ps-page::after {
+  content: attr(data-pageno);
+  position: absolute;
+  bottom: 8mm;
+  right: 14mm;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 8pt;
+  color: #aaa;
+}
+
+.print-short h1, .print-short h2, .print-short h3 {
+  margin: 0;
+  color: var(--text);
+}
+
+/* === Page 1 — Intro (About 전체) === */
+.ps-intro-kicker,
+.ps-page-kicker > span {
+  display: inline-block;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #0090da;
+  letter-spacing: 1.5px;
+  margin-bottom: 4mm;
+  text-transform: uppercase;
+}
+.ps-page-kicker {
+  margin-bottom: 4mm;
+}
+.ps-intro-head {
+  border-bottom: 2px solid #0090da;
+  padding-bottom: 5mm;
+  margin-bottom: 7mm;
+}
+.ps-intro-name {
+  font-size: 28pt;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  margin-bottom: 3mm;
+  color: #1a1d24;
+}
+.ps-intro-role {
+  font-size: 11.5pt;
+  color: #4a5060;
+  font-weight: 600;
+  margin-bottom: 2mm;
+}
+.ps-intro-meta {
+  font-size: 9pt;
+  color: #767c8a;
+  margin-bottom: 2mm;
+}
+.ps-intro-apply {
+  font-size: 10pt;
+  color: #0090da;
+  font-weight: 700;
+}
+
+.ps-intro-quote {
+  margin: 5mm 0 6mm 0;
+  padding: 5mm 6mm;
+  background: #fff8e8;
+  border-left: 4px solid #88b03b;
+  font-size: 11.5pt;
+  line-height: 1.6;
+  color: #1a1d24;
+}
+.ps-intro-quote span {
+  display: block;
+  font-weight: 600;
+}
+.ps-intro-quote em {
+  font-style: italic;
+  color: #88b03b;
+  font-weight: 700;
+}
+
+.ps-intro-body {
+  font-size: 10pt;
+  line-height: 1.65;
+  margin-bottom: 4mm;
+  color: #1a1d24;
+}
+.ps-intro-body strong {
+  color: #0090da;
+  font-weight: 700;
+}
+
+.ps-block-title {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--text);
+  margin: 5mm 0 3mm 0;
+  padding-bottom: 1.5mm;
+  border-bottom: 1px solid var(--line-strong);
+  letter-spacing: -0.3px;
+}
+.ps-block-title.ps-jdfit {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.ps-jdmap {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2mm;
+  margin-bottom: 5mm;
+}
+.ps-jdmap li {
+  display: grid;
+  grid-template-columns: 8mm 56mm 1fr;
+  gap: 3mm;
+  align-items: baseline;
+  padding: 2mm 3mm;
+  background: var(--bg-elev);
+  border-radius: 2px;
+  font-size: 9.2pt;
+}
+.ps-jno {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 10pt;
+}
+.ps-jname { font-weight: 700; }
+.ps-jtag2 { color: var(--text-sub); font-size: 9pt; line-height: 1.4; }
+.ps-jtag2 strong { color: var(--accent-2); font-weight: 700; }
+
+.ps-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8mm;
+}
+.ps-profile-list {
+  list-style: none;
+}
+.ps-profile-list li {
+  display: grid;
+  grid-template-columns: 28mm 1fr;
+  gap: 3mm;
+  padding: 1.5mm 0;
+  font-size: 9.5pt;
+  border-bottom: 1px dashed var(--line);
+}
+.ps-profile-list li:last-child { border-bottom: none; }
+.ps-pdate {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 8.5pt;
+  color: var(--text-mute);
+}
+.ps-pbody { color: var(--text); }
+
+/* === Project pages === */
+.ps-page-1 {
+  page-break-before: always;
+  break-before: page;
+}
+.ps-page-2 {
+  page-break-before: always;
+  break-before: page;
+}
+
+.ps-head {
+  display: grid;
+  grid-template-columns: 12mm 1fr auto;
+  gap: 4mm;
+  align-items: center;
+  padding-bottom: 3mm;
+  margin-bottom: 3mm;
+  border-bottom: 2px solid var(--accent);
+}
+.ps-no {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 18pt;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.ps-name {
+  font-size: 16pt;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  margin-bottom: 1mm;
+}
+.ps-role {
+  font-size: 9pt;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.ps-period {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 9pt;
+  color: var(--text-mute);
+}
+
+.ps-tagline {
+  font-size: 10pt;
+  color: var(--text);
+  font-weight: 500;
+  padding: 3mm 4mm;
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  margin-bottom: 4mm;
+  line-height: 1.5;
+}
+
+.ps-stack {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+  margin-bottom: 5mm;
+}
+.ps-stack li {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 8pt;
+  padding: 1mm 2.5mm;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--text-sub);
+}
+
+.ps-points {
+  list-style: none;
+}
+.ps-points li {
+  position: relative;
+  padding: 2.5mm 3mm 2.5mm 7mm;
+  font-size: 9.7pt;
+  line-height: 1.55;
+  border-bottom: 1px dashed var(--line);
+}
+.ps-points li:last-child { border-bottom: none; }
+.ps-points li::before {
+  content: "▸";
+  position: absolute;
+  left: 2mm;
+  top: 2.5mm;
+  color: var(--accent);
+  font-weight: 700;
+}
+.ps-points li strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* === Page 2 — 좌·우 2단 === */
+.ps-twocol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;
+}
+.ps-col-relevance {
+  background: var(--accent-soft);
+  padding: 4mm 5mm;
+  border-radius: 2px;
+}
+.ps-col-relevance .ps-block-title {
+  margin-top: 0;
+}
+
+.ps-journey {
+  list-style: none;
+}
+.ps-journey li {
+  margin-bottom: 3mm;
+  padding-bottom: 3mm;
+  border-bottom: 1px dashed var(--line);
+  font-size: 9.3pt;
+  line-height: 1.5;
+}
+.ps-journey li:last-child { border-bottom: none; }
+.ps-jtag {
+  display: inline-block;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 7.8pt;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 0.5mm 2mm;
+  border-radius: 2px;
+  margin-bottom: 1.5mm;
+  letter-spacing: 0.3px;
+}
+.ps-jbody {
+  display: block;
+  color: var(--text);
+}
+
+.ps-relevance {
+  list-style: none;
+}
+.ps-relevance li {
+  margin-bottom: 3.5mm;
+  padding-bottom: 3.5mm;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 9.3pt;
+  line-height: 1.5;
+}
+.ps-relevance li:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.ps-rtag {
+  display: block;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 9.5pt;
+  margin-bottom: 1mm;
+}
+.ps-rbody {
+  display: block;
+  color: var(--text);
+}
+.ps-rbody strong {
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+/* === 마지막 페이지 — Teaching + Contact === */
+.ps-tail {
+  page-break-before: always;
+  break-before: page;
+}
+.ps-lecture-list {
+  list-style: none;
+  margin-bottom: 6mm;
+}
+.ps-lecture-list li {
+  padding: 3mm 0;
+  border-bottom: 1px dashed var(--line);
+}
+.ps-lecture-list li:last-child { border-bottom: none; }
+.ps-lecture-list li.highlight {
+  background: var(--accent-soft);
+  padding-left: 3mm;
+  padding-right: 3mm;
+  border-left: 3px solid var(--accent);
+  border-bottom: none;
+  margin: 1mm 0;
+}
+.ps-lec-head {
+  display: grid;
+  grid-template-columns: 18mm 1fr auto;
+  gap: 3mm;
+  align-items: baseline;
+  margin-bottom: 1mm;
+}
+.ps-lec-year {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--accent);
+}
+.ps-lec-title { font-size: 10.2pt; font-weight: 700; }
+.ps-lec-meta { font-size: 8.5pt; color: var(--text-mute); }
+.ps-lec-body {
+  font-size: 9.2pt;
+  color: var(--text-sub);
+  line-height: 1.5;
+  padding-left: 21mm;
+}
+
+.ps-contact-list {
+  list-style: none;
+  margin-bottom: 5mm;
+}
+.ps-contact-list li {
+  display: grid;
+  grid-template-columns: 18mm 1fr;
+  gap: 4mm;
+  padding: 2mm 0;
+  font-size: 9.5pt;
+  border-bottom: 1px dashed var(--line);
+}
+.ps-contact-list li:last-child { border-bottom: none; }
+.ps-ckey { color: var(--text-mute); font-size: 8.5pt; }
+.ps-cval { font-weight: 600; }
+
+.ps-tail-foot {
+  text-align: right;
+  font-size: 8pt;
+  color: var(--text-mute);
+  margin-top: 6mm;
+  padding-top: 3mm;
+  border-top: 1px solid var(--line);
+}
+
+/* === 인쇄 모드: Short PDF === */
+@media print {
+  body[data-print-variant="short"] {
+    background: #fff !important;
+  }
+  body[data-print-variant="short"] .print-short {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  body[data-print-variant="short"] .ps-page {
+    page-break-after: always;
+    break-after: page;
+    margin: 0 !important;
+  }
+  body[data-print-variant="short"] .ps-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  body[data-print-variant="short"] .ps-page-1,
+  body[data-print-variant="short"] .ps-page-2,
+  body[data-print-variant="short"] .ps-tail {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+  /* @page는 short PDF에서도 동일한 A4 portrait 사용 — full PDF의 @page와 통합됨 */
+  body[data-print-variant="short"] .ps-twocol {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  body[data-print-variant="short"] .ps-points li,
+  body[data-print-variant="short"] .ps-journey li,
+  body[data-print-variant="short"] .ps-relevance li,
+  body[data-print-variant="short"] .ps-lecture-list li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  /* 인쇄 시 폰트 강제 — 풀버전과 동일 패턴 */
+  body[data-print-variant="short"],
+  body[data-print-variant="short"] .print-short,
+  body[data-print-variant="short"] .print-short * {
+    font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "IBM Plex Sans KR", sans-serif !important;
+  }
+  body[data-print-variant="short"] .ps-no,
+  body[data-print-variant="short"] .ps-period,
+  body[data-print-variant="short"] .ps-pdate,
+  body[data-print-variant="short"] .ps-stack li,
+  body[data-print-variant="short"] .ps-jtag,
+  body[data-print-variant="short"] .ps-lec-year {
+    font-family: "JetBrains Mono", Consolas, "D2Coding", "Courier New", monospace !important;
+  }
+}
